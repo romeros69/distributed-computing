@@ -2,6 +2,8 @@
 #ifndef __ROMCHIK_PIPES_H
 #define __ROMCHIK_PIPES_H
 
+#include <unistd.h>
+
 typedef struct
 {
     int s_to_b[2];
@@ -15,5 +17,7 @@ typedef struct
 }__attribute__((packed)) global;
 
 global* new_global(size_t count_proc);
+
+void create_pipes(global* gl);
 
 #endif
