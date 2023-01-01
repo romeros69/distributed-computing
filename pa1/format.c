@@ -2,7 +2,8 @@
 #include "format.h"
 
 // вывод global структры с пайпами
-void  print_global_pipes(global* gl) {
+void  print_global_pipes(global* gl, int cur_id_proc) {
+    printf("current process id: %d\n", cur_id_proc);
     printf("count process: %zu\n", gl->count_proc);
     size_t num_s = 0;
     for (size_t i = 0; i < gl->count_proc; i++) {
