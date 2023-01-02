@@ -14,6 +14,7 @@ typedef struct
 {
     chpok** gen;
     size_t count_proc;
+    int id_proc;
 }__attribute__((packed)) global;
 
 global* new_global(size_t count_proc);
