@@ -25,6 +25,8 @@ void close_nenuzh_pipes(global* gl, int cur_id_proc);
 
 void close_ne_rw_pipes(global* gl, int cur_id_proc);
 
-void close_ok_rw_pipes(global* gl, int cur_id_proc);
+void close_after_write(global* gl);
+
+void close_after_read(global* gl);
 
 #endif
