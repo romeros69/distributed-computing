@@ -6,53 +6,30 @@
 
 
 void run(global* gl, int id_proc) {
-    //gl->id_proc = id_proc;
-    //close_nenuzh_pipes(gl, id_proc);
-    //close_ne_rw_pipes(gl, id_proc);
-    Message* msg = new_started_msg(id_proc);
-    close(4);
-    close(5);
+    close_nenuzh_pipes(gl, gl->id_proc);
+    close_ne_rw_pipes(gl, gl->id_proc);
+    Message* msg = new_started_msg(gl->id_proc);
     send_multicast(gl, msg);
-    close(6);
-    // if (gl->id_proc != 2) {
-    //     printf("PEZDECCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC!!!!\n");
-    // }
-    //close_after_write(gl);
-    printf("process %d send START msg\n", id_proc);
-    int schet = 0;
-    while (1) {
-        if (schet == gl->count_proc - 2) {
-            break;
-        }
-        if (receive_any(gl, msg) == 0) {
-            schet++;
-            printf("process %d recieve msg: %s\n", id_proc, msg->s_payload);
+    close_after_write(gl);
+    for (size_t j = 0; j < gl->count_proc; j++) {
+        if (j != gl->id_proc && j != PARENT_ID) {
+            receive(gl, j, msg);
+            printf("proc %d recieve msg from %zu msg = %s\n", gl->id_proc, j, msg->s_payload);
         }
     }
     close_after_read(gl);
-    close(3);
 }
 
 void run_parent(global* gl, int id_proc) {
-    print_global_pipes(gl, PARENT_ID);
-    close(4);
-    close(3);
-    close(6);
-    gl->id_proc = PARENT_ID;
-    //close_nenuzh_pipes(gl, id_proc);
-    //close_ne_rw_pipes(gl, id_proc);
-    //close_after_write(gl);
-    Message* msg = NULL;
-    int schet = 0;
-    while (1) {
-        if (schet == gl->count_proc - 1) {
-            break;
-        }
-        if (receive_any(gl, msg) == 0) {
-            schet++;
-            printf("process %d recieve msg: %s\n", id_proc, msg->s_payload);
+    close_nenuzh_pipes(gl, gl->id_proc);
+    close_ne_rw_pipes(gl, gl->id_proc);
+    close_after_write(gl);
+    Message* msg = malloc(sizeof(Message));
+    for (size_t j = 0; j < gl->count_proc; j++) {
+        if (j != gl->id_proc && j != PARENT_ID) {
+            receive(gl, j, msg);
+            printf("proc %d recieve msg from %d msg = %s\n", gl->id_proc, j, msg->s_payload);
         }
     }
-    // close(5);
-    // close_after_read(gl);
+    close_after_read(gl);
 }

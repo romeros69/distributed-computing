@@ -57,10 +57,10 @@ void close_nenuzh_pipes(global* gl, int cur_id_proc) {
         for (size_t j = i; j < gl->count_proc; j++) {
             if (i != cur_id_proc && j != cur_id_proc && i != j) {
                 close_all_chpok(gl->gen[i][j]);
-                printf("proc %d - Закрытие дескриптора: %d\n", gl->id_proc, gl->gen[i][j].s_to_b[0]);
-                printf("proc %d - Закрытие дескриптора: %d\n", gl->id_proc, gl->gen[i][j].s_to_b[1]);
-                printf("proc %d - Закрытие дескриптора: %d\n", gl->id_proc, gl->gen[i][j].b_to_s[0]);
-                printf("proc %d - Закрытие дескриптора: %d\n", gl->id_proc, gl->gen[i][j].b_to_s[1]);
+                //printf("proc %d - Закрытие дескриптора: %d\n", gl->id_proc, gl->gen[i][j].s_to_b[0]);
+                //printf("proc %d - Закрытие дескриптора: %d\n", gl->id_proc, gl->gen[i][j].s_to_b[1]);
+                //printf("proc %d - Закрытие дескриптора: %d\n", gl->id_proc, gl->gen[i][j].b_to_s[0]);
+                //printf("proc %d - Закрытие дескриптора: %d\n", gl->id_proc, gl->gen[i][j].b_to_s[1]);
             }
         }
     }
@@ -75,13 +75,13 @@ void close_ne_rw_pipes(global* gl, int cur_id_proc) {
             if (j > cur_id_proc) {
                 close(gl->gen[cur_id_proc][j].s_to_b[0]);
                 close(gl->gen[cur_id_proc][j].b_to_s[1]);
-            printf("proc %d - Закрытие де, скриптора: %d\n", gl->id_proc, gl->gen[cur_id_proc][j].s_to_b[0]);
-            printf("proc %d - Закрытие дескриптора: %d\n", gl->id_proc, gl->gen[cur_id_proc][j].b_to_s[1]);
+            //printf("proc %d - Закрытие де, скриптора: %d\n", gl->id_proc, gl->gen[cur_id_proc][j].s_to_b[0]);
+            //printf("proc %d - Закрытие дескриптора: %d\n", gl->id_proc, gl->gen[cur_id_proc][j].b_to_s[1]);
             } else {
                 close(gl->gen[cur_id_proc][j].s_to_b[1]);
                 close(gl->gen[cur_id_proc][j].b_to_s[0]);
-                printf("proc %d - Закрытие де, скриптора: %d\n", gl->id_proc, gl->gen[cur_id_proc][j].s_to_b[1]);
-                printf("proc %d - Закрытие дескриптора: %d\n", gl->id_proc, gl->gen[cur_id_proc][j].b_to_s[0]);
+                //printf("proc %d - Закрытие де, скриптора: %d\n", gl->id_proc, gl->gen[cur_id_proc][j].s_to_b[1]);
+                //printf("proc %d - Закрытие дескриптора: %d\n", gl->id_proc, gl->gen[cur_id_proc][j].b_to_s[0]);
             }
         }
     }
@@ -92,10 +92,10 @@ void close_after_write(global* gl) {
         if (j != gl->id_proc) {
             if (j > gl->id_proc) {
                 close(gl->gen[gl->id_proc][j].s_to_b[1]);
-                printf("!!! proc %d - Закрытие дескриптора: %d\n", gl->id_proc, gl->gen[gl->id_proc][j].s_to_b[1]);
+                //printf("!!! proc %d - Закрытие дескриптора: %d\n", gl->id_proc, gl->gen[gl->id_proc][j].s_to_b[1]);
             } else {
                 close(gl->gen[gl->id_proc][j].b_to_s[1]);
-                printf("!!! proc %d - Закрытие дескриптора: %d\n", gl->id_proc, gl->gen[gl->id_proc][j].b_to_s[1]);
+                //printf("!!! proc %d - Закрытие дескриптора: %d\n", gl->id_proc, gl->gen[gl->id_proc][j].b_to_s[1]);
             }
         }
     }
@@ -106,10 +106,10 @@ void close_after_read(global* gl) {
         if (j != gl->id_proc) {
             if (j > gl->id_proc) {
                 close(gl->gen[gl->id_proc][j].b_to_s[0]);
-                printf("proc %d - Закрытие дескриптора: %d\n", gl->id_proc, gl->gen[gl->id_proc][j].b_to_s[0]);
+                //printf("proc %d - Закрытие дескриптора: %d\n", gl->id_proc, gl->gen[gl->id_proc][j].b_to_s[0]);
             } else {
                 close(gl->gen[gl->id_proc][j].s_to_b[0]);
-                printf("proc %d - Закрытие дескриптора: %d\n", gl->id_proc, gl->gen[gl->id_proc][j].s_to_b[0]);
+                //printf("proc %d - Закрытие дескриптора: %d\n", gl->id_proc, gl->gen[gl->id_proc][j].s_to_b[0]);
             }
         }
     }
