@@ -39,7 +39,6 @@ void run(FILE * ev, FILE * ps, global* gl, int id_proc) {
 void run_parent(FILE * ev, FILE * ps, global* gl, int id_proc) {
     close_nenuzh_pipes(ps,gl, gl->id_proc);
     close_ne_rw_pipes(ps,gl, gl->id_proc);
-    close_after_write(ps,gl);
     Message* msg = malloc(sizeof(Message));
     for (size_t j = 0; j < gl->count_proc; j++) {
         if (j != gl->id_proc && j != PARENT_ID) {
@@ -55,5 +54,6 @@ void run_parent(FILE * ev, FILE * ps, global* gl, int id_proc) {
         }
     }
     log_res_all_done(ev, gl->id_proc);
+    close_after_write(ps,gl);
     close_after_read(ps,gl);
 }

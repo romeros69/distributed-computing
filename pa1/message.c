@@ -23,7 +23,7 @@ Message* new_started_msg(int id_proc) {
 
 Message* new_done_msg(int id_proc) {
     char *data = (char *) malloc(sizeof(char) * 80);
-    sprintf(data, log_started_fmt, id_proc, getpid(), getppid());
+    sprintf(data, log_done_fmt, id_proc);
     size_t len_str = strlen(data);
     MessageHeader* header = (MessageHeader*) malloc(sizeof(MessageHeader));
     header->s_magic = MESSAGE_MAGIC;
