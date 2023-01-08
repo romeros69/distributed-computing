@@ -3,6 +3,7 @@
 #define __ROMCHIK_PIPES_H
 
 #include <unistd.h>
+#include <stdio.h>
 
 typedef struct
 {
@@ -21,12 +22,12 @@ global* new_global(size_t count_proc);
 
 void create_pipes(global* gl);
 
-void close_nenuzh_pipes(global* gl, int cur_id_proc);
+void close_nenuzh_pipes(FILE * ps, global* gl, int cur_id_proc);
 
-void close_ne_rw_pipes(global* gl, int cur_id_proc);
+void close_ne_rw_pipes(FILE * ps, global* gl, int cur_id_proc);
 
-void close_after_write(global* gl);
+void close_after_write(FILE * ps, global* gl);
 
-void close_after_read(global* gl);
+void close_after_read(FILE * ps, global* gl);
 
 #endif

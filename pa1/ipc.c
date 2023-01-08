@@ -1,4 +1,3 @@
-#include <malloc.h>
 #include "ipc.h"
 #include "pipes.h"
 
@@ -40,7 +39,7 @@ int receive(void * self, local_id from, Message * msg){
         return -1;
     }
     int header_res = read(des, &(msg->s_header), sizeof(MessageHeader));
-    
+
     if (header_res == -1) {
         return -1;
     }

@@ -7,4 +7,6 @@
 
 Message* new_started_msg(int id_proc);
 
+Message* new_done_msg(int id_proc);
+
 #endif

@@ -1,5 +1,6 @@
 #include <stdlib.h>
-#include <malloc.h>
+#include <stdio.h>
+#include "mm_malloc.h"
 #include "pipes.h"
 
 // Конструктор для создания двумерного массива для будущих пайпов
@@ -29,11 +30,11 @@ void create_pipes(global* gl) {
                 if (j > i) {
                     int err = pipe(gl->gen[i][j].s_to_b);
                     if (err != 0) {
-                        printf("ERROR: creating pipe s_to_b");
+//                        printf("ERROR: creating pipe s_to_b");
                     }
                     err = pipe(gl->gen[i][j].b_to_s);
                     if (err != 0) {
-                        printf("ERROR: creating pipe b_to_s");
+//                        printf("ERROR: creating pipe b_to_s");
                     }
                 } else {
                     gl->gen[i][j] = gl->gen[j][i];
@@ -52,15 +53,15 @@ void close_all_chpok(chpok ch) {
 }
 
 // закрывает все пайпы не относящиеся никак к текущему процессу - проверка №1 - ок
-void close_nenuzh_pipes(global* gl, int cur_id_proc) {
+void close_nenuzh_pipes(FILE * pipes, global* gl, int cur_id_proc) {
     for (size_t i = 0; i < gl->count_proc; i++) {
         for (size_t j = i; j < gl->count_proc; j++) {
             if (i != cur_id_proc && j != cur_id_proc && i != j) {
                 close_all_chpok(gl->gen[i][j]);
-                //printf("proc %d - Закрытие дескриптора: %d\n", gl->id_proc, gl->gen[i][j].s_to_b[0]);
-                //printf("proc %d - Закрытие дескриптора: %d\n", gl->id_proc, gl->gen[i][j].s_to_b[1]);
-                //printf("proc %d - Закрытие дескриптора: %d\n", gl->id_proc, gl->gen[i][j].b_to_s[0]);
-                //printf("proc %d - Закрытие дескриптора: %d\n", gl->id_proc, gl->gen[i][j].b_to_s[1]);
+                fprintf(pipes, "INFO_PIPES: type=nenuzhn, proc %d close %d\n", gl->id_proc, gl->gen[i][j].s_to_b[0]);
+                fprintf(pipes, "INFO_PIPES: type=nenuzhn, proc %d close %d\n", gl->id_proc, gl->gen[i][j].s_to_b[1]);
+                fprintf(pipes, "INFO_PIPES: type=nenuzhn, proc %d close %d\n", gl->id_proc, gl->gen[i][j].b_to_s[0]);
+                fprintf(pipes, "INFO_PIPES: type=nenuzhn, proc %d close %d\n", gl->id_proc, gl->gen[i][j].b_to_s[1]);
             }
         }
     }
@@ -69,47 +70,47 @@ void close_nenuzh_pipes(global* gl, int cur_id_proc) {
 
 // в будущем может быть такое, что эти функции надо будет разделить на r и w !!!
 // Закрывает ненужные пайпы чтения и запимси, в нужных chpok-ах --- ДО РАБОТЫ ПАЙПОВ - ok 1
-void close_ne_rw_pipes(global* gl, int cur_id_proc) {
+void close_ne_rw_pipes(FILE * pipes, global* gl, int cur_id_proc) {
     for (size_t j = 0; j < gl->count_proc; j++) {
         if (j != cur_id_proc) {
             if (j > cur_id_proc) {
                 close(gl->gen[cur_id_proc][j].s_to_b[0]);
                 close(gl->gen[cur_id_proc][j].b_to_s[1]);
-            //printf("proc %d - Закрытие де, скриптора: %d\n", gl->id_proc, gl->gen[cur_id_proc][j].s_to_b[0]);
-            //printf("proc %d - Закрытие дескриптора: %d\n", gl->id_proc, gl->gen[cur_id_proc][j].b_to_s[1]);
+                fprintf(pipes, "INFO_PIPES: type=ne_otnos_rw, proc %d close %d\n", gl->id_proc, gl->gen[cur_id_proc][j].s_to_b[0]);
+                fprintf(pipes, "INFO_PIPES: type=ne_otnos_rw, proc %d close %d\n", gl->id_proc, gl->gen[cur_id_proc][j].b_to_s[1]);
             } else {
                 close(gl->gen[cur_id_proc][j].s_to_b[1]);
                 close(gl->gen[cur_id_proc][j].b_to_s[0]);
-                //printf("proc %d - Закрытие де, скриптора: %d\n", gl->id_proc, gl->gen[cur_id_proc][j].s_to_b[1]);
-                //printf("proc %d - Закрытие дескриптора: %d\n", gl->id_proc, gl->gen[cur_id_proc][j].b_to_s[0]);
+                fprintf(pipes, "INFO_PIPES: type=ne_otnos_rw, proc %d close %d\n", gl->id_proc, gl->gen[cur_id_proc][j].s_to_b[1]);
+                fprintf(pipes, "INFO_PIPES: type=ne_otnos_rw, proc %d close %d\n", gl->id_proc, gl->gen[cur_id_proc][j].b_to_s[0]);
             }
         }
     }
 }
 
-void close_after_write(global* gl) {
+void close_after_write(FILE * pipes, global* gl) {
     for (size_t j = 0; j < gl->count_proc; j++) {
         if (j != gl->id_proc) {
             if (j > gl->id_proc) {
                 close(gl->gen[gl->id_proc][j].s_to_b[1]);
-                //printf("!!! proc %d - Закрытие дескриптора: %d\n", gl->id_proc, gl->gen[gl->id_proc][j].s_to_b[1]);
+                fprintf(pipes, "INFO_PIPES: type=close_after_write, proc %d close %d\n", gl->id_proc, gl->gen[gl->id_proc][j].s_to_b[1]);
             } else {
                 close(gl->gen[gl->id_proc][j].b_to_s[1]);
-                //printf("!!! proc %d - Закрытие дескриптора: %d\n", gl->id_proc, gl->gen[gl->id_proc][j].b_to_s[1]);
+                fprintf(pipes, "INFO_PIPES: type=close_after_write, proc %d close %d\n", gl->id_proc, gl->gen[gl->id_proc][j].b_to_s[1]);
             }
         }
     }
 }
 
-void close_after_read(global* gl) {
+void close_after_read(FILE * pipes, global* gl) {
     for (size_t j = 0; j < gl->count_proc; j++) {
         if (j != gl->id_proc) {
             if (j > gl->id_proc) {
                 close(gl->gen[gl->id_proc][j].b_to_s[0]);
-                //printf("proc %d - Закрытие дескриптора: %d\n", gl->id_proc, gl->gen[gl->id_proc][j].b_to_s[0]);
+                fprintf(pipes, "INFO_PIPES: type=close_after_read, proc %d close %d\n", gl->id_proc, gl->gen[gl->id_proc][j].b_to_s[0]);
             } else {
                 close(gl->gen[gl->id_proc][j].s_to_b[0]);
-                //printf("proc %d - Закрытие дескриптора: %d\n", gl->id_proc, gl->gen[gl->id_proc][j].s_to_b[0]);
+                fprintf(pipes, "INFO_PIPES: type=close_after_read, proc %d close %d\n", gl->id_proc, gl->gen[gl->id_proc][j].s_to_b[0]);
             }
         }
     }

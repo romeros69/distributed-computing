@@ -1,10 +1,10 @@
 #include <stdio.h>
-#include <stdlib.h>
+#include <string.h>
 #include <sys/wait.h>
 #include "pipes.h"
-#include "format.h"
 #include "ipc.h"
 #include "proc.h"
+#include "common.h"
 
 int main(int argc, char *argv[]) {
     if (argc != 3) {
@@ -22,6 +22,11 @@ int main(int argc, char *argv[]) {
     sscanf(argv[2], "%zu", &input_c);
     size_t count_proc = input_c + 1;
 
+    FILE *events;
+    FILE *pipes;
+    events = fopen(events_log, "w");
+    pipes = fopen(pipes_log, "w");
+
     // инициализация структуры с пайпами
     global* gl = new_global(count_proc);
     // подготовка пайпов
@@ -31,14 +36,14 @@ int main(int argc, char *argv[]) {
     p1 = fork();
     if (p1 == 0) {
         gl->id_proc = 1;
-        run(gl, 1);
+        run(events, pipes, gl, 1);
         return 0;
     } 
     if (count_proc > 2) {
         p2 = fork();
         if (p2 == 0) {
             gl->id_proc = 2;
-            run(gl, 2);
+            run(events, pipes,gl, 2);
             return 0;
         }
     }
@@ -46,7 +51,7 @@ int main(int argc, char *argv[]) {
         p3 = fork();
         if (p3 == 0) {
             gl->id_proc = 3;
-            run(gl, 3);
+            run(events, pipes,gl, 3);
             return 0;
         }
     }
@@ -54,7 +59,7 @@ int main(int argc, char *argv[]) {
         p4 = fork();
         if (p4 == 0) {
             gl->id_proc = 4;
-            run(gl, 4);
+            run(events, pipes,gl, 4);
             return 0;
         }
     }
@@ -62,7 +67,7 @@ int main(int argc, char *argv[]) {
         p5 = fork();
         if (p5 == 0) {
             gl->id_proc = 5;
-            run(gl, 5);
+            run(events, pipes,gl, 5);
             return 0;
         }
     }
@@ -70,7 +75,7 @@ int main(int argc, char *argv[]) {
         p6 = fork();
         if (p6 == 0) {
             gl->id_proc = 6;
-            run(gl, 6);
+            run(events, pipes,gl, 6);
             return 0;
         }
     }
@@ -78,7 +83,7 @@ int main(int argc, char *argv[]) {
         p7 = fork();
         if (p7 == 0) {
             gl->id_proc = 7;
-            run(gl, 7);
+            run(events, pipes,gl, 7);
             return 0;
         }
     }
@@ -86,7 +91,7 @@ int main(int argc, char *argv[]) {
         p8 = fork();
         if (p8 == 0) {
             gl->id_proc = 8;
-            run(gl, 8);
+            run(events, pipes,gl, 8);
             return 0;
         }
     }
@@ -94,7 +99,7 @@ int main(int argc, char *argv[]) {
         p9 = fork();
         if (p9 == 0) {
             gl->id_proc = 9;
-            run(gl, 9);
+            run(events, pipes,gl, 9);
             return 0;
         }
     }
@@ -102,14 +107,16 @@ int main(int argc, char *argv[]) {
         p10 = fork();
         if (p10 == 0) {
             gl->id_proc = 10;
-            run(gl, 10);
+            run(events, pipes,gl, 10);
             return 0;
         }
     }
 
-    run_parent(gl, PARENT_ID);  // тут стопорится родительский
+    run_parent(events, pipes,gl, PARENT_ID);  // тут стопорится родительский
     for (size_t i = 0; i < count_proc; i++) {
         wait(NULL);
     }
+    fclose(events);
+    fclose(pipes);
     return 0;
 }
