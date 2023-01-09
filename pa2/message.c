@@ -7,7 +7,9 @@
 
 Message* new_started_msg(int id_proc) {
     char *data = (char *) malloc(sizeof(char) * 80);
-    sprintf(data, log_started_fmt, id_proc, getpid(), getppid());
+    int time = 1;
+    int current_balance = 10;
+    sprintf(data, log_started_fmt, time, id_proc, getpid(), getppid(), current_balance);
     size_t len_str = strlen(data);
     MessageHeader* header = (MessageHeader*) malloc(sizeof(MessageHeader));
     header->s_magic = MESSAGE_MAGIC;
@@ -23,7 +25,9 @@ Message* new_started_msg(int id_proc) {
 
 Message* new_done_msg(int id_proc) {
     char *data = (char *) malloc(sizeof(char) * 80);
-    sprintf(data, log_done_fmt, id_proc);
+    int time = 1;
+    int current_balance = 10;
+    sprintf(data, log_done_fmt, time, id_proc, current_balance);
     size_t len_str = strlen(data);
     MessageHeader* header = (MessageHeader*) malloc(sizeof(MessageHeader));
     header->s_magic = MESSAGE_MAGIC;

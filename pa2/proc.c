@@ -10,8 +10,10 @@ void run(FILE * ev, FILE * ps, global* gl, int id_proc) {
     close_nenuzh_pipes(ps, gl, gl->id_proc);
     close_ne_rw_pipes(ps,gl, gl->id_proc);
     log_start(ev, id_proc);
-    char *lol = (char *) malloc(sizeof(char) * 80);
-    sprintf(lol, log_started_fmt, id_proc, getpid(), getppid());
+    // char *lol = (char *) malloc(sizeof(char) * 80);
+    //int time = 1;
+    //int current_balance = 10;
+    // sprintf(lol, log_started_fmt, time, id_proc, getpid(), getppid(), current_balance);
     Message* msg = new_started_msg(gl->id_proc);
     send_multicast(gl, msg);
     for (size_t j = 0; j < gl->count_proc; j++) {
@@ -22,7 +24,7 @@ void run(FILE * ev, FILE * ps, global* gl, int id_proc) {
     }
     log_res_all_start(ev, id_proc);
     log_done_work(ev, id_proc);
-    sprintf(lol, log_done_fmt, id_proc);
+    // sprintf(lol, log_done_fmt, time, id_proc, current_balance);
     msg = new_done_msg(gl->id_proc);
     send_multicast(gl, msg);
     close_after_write(ps,gl);
