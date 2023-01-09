@@ -1,4 +1,4 @@
 run:
-	clang -std=c99 -Wall -pedantic *.c && ./a.out -p 2
+	clang -std=c99 -Wall -pedantic -L. *.c -lruntime && ./a.out -p 2
 clean:
 	rm a.out
