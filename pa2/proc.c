@@ -109,9 +109,7 @@ void run(FILE * ev, FILE * ps, global* gl, int id_proc) {
             if (have_stop == 1 && count_done == gl->count_proc - 2) {
                 log_res_all_done(ev, id_proc);
                 Message* history_msg = new_balance_history(gl);
-                printf("LLLLLL %d\n", history_msg->s_header.s_type);
                 send(gl, PARENT_ID, history_msg);
-                printf("LLLLLL %d\n", history_msg->s_header.s_type);
                 break;
             }
         } else if (lov_msg->s_header.s_type == DONE){
@@ -119,9 +117,7 @@ void run(FILE * ev, FILE * ps, global* gl, int id_proc) {
             if (have_stop == 1 && count_done == gl->count_proc - 2) {
                 log_res_all_done(ev, id_proc);
                 Message* history_msg = new_balance_history(gl);
-                printf("LLLLLL %d\n", history_msg->s_header.s_type);
                 send(gl, PARENT_ID, history_msg);
-                printf("LLLLLL %d\n", history_msg->s_header.s_type);
                 break;
             }
             //printf("proc %d receive msg unknown type = %d\n", gl->id_proc, lov_msg->s_header.s_type);
