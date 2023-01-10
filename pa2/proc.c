@@ -125,25 +125,8 @@ void run(FILE * ev, FILE * ps, global* gl, int id_proc) {
             printf("proc %d res unknown type = %d", gl->id_proc, lov_msg->s_header.s_type);
         }
     }
-    
-
-    // отправка всем, что мы завершили полезную работу
-    close_after_write(ps,gl);       // потом переместить вниз
-
-    // принятие от всех о том, что они завершили полезную работу
-    // for (size_t j = 0; j < gl->count_proc; j++) {
-    //     if (j != gl->id_proc && j != PARENT_ID) {
-    //         while(receive(gl, j, msg) == -1) {}
-    //         if (msg->s_header.s_type != DONE) {
-    //             j--;
-    //         }
-    //     }
-    // }
+    close_after_write(ps,gl);      
     close_after_read(ps,gl);
-
-    // отправка родительскому процессу истории
-
-
 }
 
 void run_parent(FILE * ev, FILE * ps, global* gl, int id_proc) {
@@ -211,7 +194,6 @@ void run_parent(FILE * ev, FILE * ps, global* gl, int id_proc) {
 
     print_history(&all_history);
 
-
-    close_after_write(ps,gl); // МБ ЭТО РАНЬШЕ СРАЗУ ПОСЛЕ ЛАСТ ЗАПИСИ
+    close_after_write(ps,gl);
     close_after_read(ps,gl);
 }

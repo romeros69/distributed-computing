@@ -89,9 +89,7 @@ Message* new_balance_history(global* gl) {
     header->s_type = BALANCE_HISTORY;
     header->s_magic = MESSAGE_MAGIC;
     header->s_local_time = get_physical_time();
-    size_t big_size = sizeof(gl->history);
-    size_t size_use = sizeof(BalanceState) * gl->history.s_history_len;
-    size_t itog_size = big_size - (sizeof(gl->history.s_history) - size_use);
+    size_t itog_size = sizeof(gl->history) - (sizeof(gl->history.s_history) - (sizeof(BalanceState) * gl->history.s_history_len));
     header->s_payload_len = itog_size;
     Message* msg = (Message*) malloc(sizeof(Message));
     msg->s_header = *header;
