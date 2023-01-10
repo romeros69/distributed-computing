@@ -10,10 +10,6 @@ int send(void * self, local_id dst, const Message * msg){
     } else {
         des = gl->gen[gl->id_proc][dst].b_to_s[1];
     }
-
-    if (gl->id_proc == 1 && msg->s_header.s_type == TRANSFER) {
-        printf("proc 1 peresend transfer msg dst = %d, des = %d, len = %d\n", dst ,  des, msg->s_header.s_payload_len);
-    }
     write(des, msg, 8 + msg->s_header.s_payload_len);
     //printf("proc %d write to dst=%d use des=%d data= %s len = %zu\n", gl->id_proc, dst, des, msg->s_payload, msg->s_header.s_payload_len + 8);
     return 0;
@@ -42,13 +38,7 @@ int receive(void * self, local_id from, Message * msg){
     if (gl->id_proc == from) {
         return -1;
     }
-    if (gl->id_proc == 2) {
-        printf("OP\n");
-    }
     int header_res = read(des, &(msg->s_header), sizeof(MessageHeader));
-    if (gl->id_proc == 2) {
-        printf("OP\n");
-    }
     if (header_res == -1) {
         return -1;
     }
@@ -63,22 +53,13 @@ int receive(void * self, local_id from, Message * msg){
 // тут j = 1, т к родительский ничего не отправляет
 int receive_any(void * self, Message * msg){
     global* gl = (global*) self;
-    if (gl->id_proc == 2) {
-        printf("RECEIVE 2 START\n");
-    }
     while(1) {
         for (size_t j = 0; j < gl->count_proc; j++) {
-            if (gl->id_proc == 2) {
-                printf("PROC 2 GO RECIEVE FROM %zu\n", j);
-            }
             if (gl->id_proc == j) {
                 continue;
             } else {
                 int res = receive(self, j, msg);
                 if (res == 0) {
-                    if (gl->id_proc == 2) {
-                        printf("RECEIVE 2 END\n");
-                    }
                     return 0;
                 }
             }

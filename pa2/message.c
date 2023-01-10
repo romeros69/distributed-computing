@@ -76,7 +76,7 @@ Message* new_stop_msg() {
     MessageHeader* header = (MessageHeader*) malloc(sizeof(MessageHeader));
     header->s_magic = MESSAGE_MAGIC;
     header->s_payload_len = 0;
-    header->s_type = ACK;
+    header->s_type = STOP;
     header->s_local_time = get_physical_time();
     Message* msg = (Message*) malloc(sizeof(Message));
     msg->s_header = *header;

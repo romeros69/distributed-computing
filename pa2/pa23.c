@@ -1,4 +1,3 @@
-#include "banking.h"
 #include <stdio.h>
 #include <string.h>
 #include <sys/wait.h>
@@ -6,9 +5,13 @@
 #include "ipc.h"
 #include "proc.h"
 #include "common.h"
+#include "banking.h"
 
 int main(int argc, char * argv[])
 {
+
+    int d1 = 10;
+    int d2 = 10;
 
     if (argc != 3) {
         printf("invalid count arguments\n");
@@ -39,14 +42,24 @@ int main(int argc, char * argv[])
     p1 = fork();
     if (p1 == 0) {
         gl->id_proc = 1;
+        gl->dollar = d1;
+        gl->history.s_id = 1;
+        gl->history.s_history_len = 1;
+        memset(gl->history.s_history, 0, sizeof(gl->history.s_history));
         run(events, pipes, gl, 1);
+        printf("proc %d balance = %d\n", gl->id_proc, gl->history.s_history[gl->history.s_history_len - 1].s_balance);
         return 0;
     } 
     if (count_proc > 2) {
         p2 = fork();
         if (p2 == 0) {
             gl->id_proc = 2;
+            gl->history.s_id = 2;
+            gl->history.s_history_len = 1;
+            gl->dollar = d2;
+            memset(gl->history.s_history, 0, sizeof(gl->history.s_history));
             run(events, pipes,gl, 2);
+            printf("proc %d balance = %d\n", gl->id_proc, gl->history.s_history[gl->history.s_history_len - 1].s_balance);
             return 0;
         }
     }

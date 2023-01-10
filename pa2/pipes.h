@@ -4,6 +4,7 @@
 
 #include <unistd.h>
 #include <stdio.h>
+#include "banking.h"
 
 typedef struct
 {
@@ -16,6 +17,8 @@ typedef struct
     chpok** gen;
     size_t count_proc;
     int id_proc;
+    BalanceHistory history;
+    int dollar;
 }__attribute__((packed)) global;
 
 global* new_global(size_t count_proc);

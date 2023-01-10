@@ -12,35 +12,34 @@
 void log_start(FILE * events, int id_proc) {
     int current_pid = getpid();
     int parent_pid = getppid();
-    int time = 1;
     int cur_balance = 10;
-    printf(log_started_fmt, time, id_proc, current_pid, parent_pid, cur_balance);
-    fprintf(events, log_started_fmt, time, id_proc, current_pid, parent_pid, cur_balance );
+    printf(log_started_fmt, get_physical_time(), id_proc, current_pid, parent_pid, cur_balance);
+    fprintf(events, log_started_fmt, get_physical_time(), id_proc, current_pid, parent_pid, cur_balance );
 }
 
 void log_res_all_start(FILE * events, int id_proc) {
-    int time = 1;
-    printf(log_received_all_started_fmt, time, id_proc);
-    fprintf(events, log_received_all_started_fmt, time, id_proc);
+    printf(log_received_all_started_fmt, get_physical_time(), id_proc);
+    fprintf(events, log_received_all_started_fmt, get_physical_time(), id_proc);
 }
 
 void log_done_work(FILE * events, int id_proc) {
-    int time = 1;
     int cur_balance = 10;
-    printf(log_done_fmt, time, id_proc, cur_balance);
-    fprintf(events, log_done_fmt, time, id_proc, cur_balance);
+    printf(log_done_fmt, get_physical_time(), id_proc, cur_balance);
+    fprintf(events, log_done_fmt, get_physical_time(), id_proc, cur_balance);
 }
 
 void log_res_all_done(FILE * events, int id_proc) {
-    int time = 1;
-    printf(log_received_all_done_fmt, time, id_proc);
-    fprintf(events, log_received_all_done_fmt, time, id_proc);
+    printf(log_received_all_done_fmt, get_physical_time(), id_proc);
+    fprintf(events, log_received_all_done_fmt, get_physical_time(), id_proc);
 }
 
-// TODO
-void log_transfer_send(FILE * events, int id_proc, int id_dst) {
-    int time = 1;
-    int cur_balance = 10;
-    printf(log_transfer_out_fmt, time, id_proc, cur_balance, id_dst);
-    fprintf(events, log_transfer_out_fmt, time, id_proc, cur_balance, id_dst);
+
+void log_transfer_send(FILE * events, int id_proc, int amount, int dst) {
+    printf(log_transfer_out_fmt, get_physical_time(), id_proc, amount, dst);
+    fprintf(events, log_transfer_out_fmt, get_physical_time(), id_proc, amount, dst);
+}
+
+void log_transfer_receive(FILE * events, int id_proc, int amount, int from) {
+    printf(log_transfer_in_fmt, get_physical_time(), id_proc, amount, from);
+    fprintf(events, log_transfer_in_fmt, get_physical_time(), id_proc, amount, from);
 }

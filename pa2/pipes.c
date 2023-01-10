@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include "mm_malloc.h"
 #include "pipes.h"
@@ -29,10 +30,14 @@ void create_pipes(global* gl) {
             if (i != j) {
                 if (j > i) {
                     int err = pipe(gl->gen[i][j].s_to_b);
+                    fcntl(gl->gen[i][j].s_to_b[0], F_SETFL, fcntl(gl->gen[i][j].s_to_b[0], F_GETFL, 0) | O_NONBLOCK);
+                    fcntl(gl->gen[i][j].s_to_b[1], F_SETFL, fcntl(gl->gen[i][j].s_to_b[1], F_GETFL, 0) | O_NONBLOCK);
                     if (err != 0) {
 //                        printf("ERROR: creating pipe s_to_b");
                     }
                     err = pipe(gl->gen[i][j].b_to_s);
+                    fcntl(gl->gen[i][j].b_to_s[0], F_SETFL, fcntl(gl->gen[i][j].b_to_s[0], F_GETFL, 0) | O_NONBLOCK);
+                    fcntl(gl->gen[i][j].b_to_s[1], F_SETFL, fcntl(gl->gen[i][j].b_to_s[1], F_GETFL, 0) | O_NONBLOCK);
                     if (err != 0) {
 //                        printf("ERROR: creating pipe b_to_s");
                     }

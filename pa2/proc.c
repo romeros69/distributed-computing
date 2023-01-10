@@ -33,27 +33,59 @@ void run(FILE * ev, FILE * ps, global* gl, int id_proc) {
     while (1)
     {
         while(receive_any(gl, lov_msg) == -1) {}
-        if (gl->id_proc == 2) {
-            printf("PROC 2\n");
-        }
         if (lov_msg->s_header.s_type == TRANSFER) {
             memcpy(transfer, lov_msg->s_payload, lov_msg->s_header.s_payload_len);
-            printf("INFO: child proc %d, revieve transfer msg src = %d, dst = %d\n", gl->id_proc, transfer->s_src, transfer->s_dst);
+            //printf("INFO: child proc %d, revieve transfer msg src = %d, dst = %d\n", gl->id_proc, transfer->s_src, transfer->s_dst);
             if (transfer->s_src == gl->id_proc) {
+
+                timestamp_t cur_time = get_physical_time();
+                gl->dollar = gl->dollar - transfer->s_amount;
+                int dlina_history = gl->history.s_history_len;
+                gl->history.s_history_len = cur_time + 1;
+                gl->history.s_history[cur_time] = (BalanceState) {
+                    .s_balance = gl->dollar,
+                    .s_time = cur_time,
+                    .s_balance_pending_in = 0
+                };
+                BalanceState balanceState = gl->history.s_history[dlina_history - 1];
+                for (int i = dlina_history; i < cur_time; i++) {
+                    gl->history.s_history[i] = balanceState;
+                    gl->history.s_history[i].s_time = i;
+                }
+
                 Message* msg_to_dst = new_transfer_msg(transfer->s_src, transfer->s_dst, transfer->s_amount);
-                log_transfer_send(ev, gl->id_proc, transfer->s_dst);
+                log_transfer_send(ev, gl->id_proc, transfer->s_amount, transfer->s_dst);
                 send(gl, transfer->s_dst, msg_to_dst);
+                lov_msg->s_header.s_type = -1;
             } else if (transfer->s_dst == gl->id_proc) {
+
+                timestamp_t cur_time = get_physical_time();
+                gl->dollar = gl->dollar + transfer->s_amount;
+                int dlina_history = gl->history.s_history_len;
+                gl->history.s_history_len = cur_time + 1;
+                gl->history.s_history[cur_time] = (BalanceState) {
+                    .s_balance = gl->dollar,
+                    .s_time = cur_time,
+                    .s_balance_pending_in = 0
+                };
+                BalanceState balanceState = gl->history.s_history[dlina_history - 1];
+                for (int i = dlina_history; i < cur_time; i++) {
+                    gl->history.s_history[i] = balanceState;
+                    gl->history.s_history[i].s_time = i;
+                }
+
                 Message* msg_ask_to_parent = new_ack_msg();
-                printf("proc %d send ACK to parent\n", gl->id_proc);
+                log_transfer_receive(ev, gl->id_proc, transfer->s_amount, transfer->s_src);
                 send(gl, PARENT_ID, msg_ask_to_parent);
+                lov_msg->s_header.s_type = -1;
             } else {
-                printf("ERRROR PROC %d CHILDREN, type msg = %d, src = %d, dst = %d\n", gl->id_proc, lov_msg->s_header.s_type, transfer->s_src, transfer->s_dst);
+                printf("!!!ERRROR!!! PROC %d CHILDREN, type msg = %d, src = %d, dst = %d\n", gl->id_proc, lov_msg->s_header.s_type, transfer->s_src, transfer->s_dst);
             }
         } else if (lov_msg->s_header.s_type == STOP) {
+            printf("PROC %d RECIEVE STOP\n", gl->id_proc);
             break;
         } else {
-            printf("proc $d receive msg unknown type = %d\n", gl->id_proc, lov_msg->s_header.s_type);
+            //printf("proc %d receive msg unknown type = %d\n", gl->id_proc, lov_msg->s_header.s_type);
         }
     }
     
@@ -102,11 +134,9 @@ void run_parent(FILE * ev, FILE * ps, global* gl, int id_proc) {
     int MAX_ID = gl->count_proc - 1;
     bank_robbery(gl, MAX_ID);
 
-    
     // отправляем стоп всем
     Message* msg_stop = new_stop_msg();
     send_multicast(gl, msg_stop);
-
 
     // // принимаем сообщения о завершении
     // for (size_t j = 0; j < gl->count_proc; j++) {
@@ -118,7 +148,6 @@ void run_parent(FILE * ev, FILE * ps, global* gl, int id_proc) {
 
 
     // получаем history от всех дочерних процессов
-
 
 
 
