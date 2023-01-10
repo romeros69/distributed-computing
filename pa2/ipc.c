@@ -10,6 +10,9 @@ int send(void * self, local_id dst, const Message * msg){
     } else {
         des = gl->gen[gl->id_proc][dst].b_to_s[1];
     }
+    if (msg->s_header.s_type == BALANCE_HISTORY) {
+        printf("proc %d, start send msg balance hist to dst %d use descriptor %d\n", gl->id_proc, dst, des);
+    }
     write(des, msg, 8 + msg->s_header.s_payload_len);
     //printf("proc %d write to dst=%d use des=%d data= %s len = %zu\n", gl->id_proc, dst, des, msg->s_payload, msg->s_header.s_payload_len + 8);
     return 0;

@@ -6,6 +6,7 @@
 #include "message.h"
 #include "banking.h"
 #include "ipc.h"
+#include "pipes.h"
 
 Message* new_started_msg(int id_proc) {
     char *data = (char *) malloc(sizeof(char) * 80);
@@ -80,6 +81,21 @@ Message* new_stop_msg() {
     header->s_local_time = get_physical_time();
     Message* msg = (Message*) malloc(sizeof(Message));
     msg->s_header = *header;
+    return msg;
+}
+
+Message* new_balance_history(global* gl) {
+    MessageHeader* header = (MessageHeader*) malloc(sizeof(MessageHeader));
+    header->s_type = BALANCE_HISTORY;
+    header->s_magic = MESSAGE_MAGIC;
+    header->s_local_time = get_physical_time();
+    size_t big_size = sizeof(gl->history);
+    size_t size_use = sizeof(BalanceState) * gl->history.s_history_len;
+    size_t itog_size = big_size - (sizeof(gl->history.s_history) - size_use);
+    header->s_payload_len = itog_size;
+    Message* msg = (Message*) malloc(sizeof(Message));
+    msg->s_header = *header;
+    memcpy(msg->s_payload, &(gl->history), itog_size);
     return msg;
 }
 

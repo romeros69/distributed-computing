@@ -12,24 +12,44 @@
 
 
 void run(FILE * ev, FILE * ps, global* gl, int id_proc) {
+    timestamp_t cur_time = get_physical_time();
+    int dlina_history = gl->history.s_history_len;
+    gl->history.s_history_len = cur_time + 1;
+    gl->history.s_history[cur_time] = (BalanceState) {
+    .s_balance = gl->dollar,
+    .s_time = cur_time,
+    .s_balance_pending_in = 0
+    };
+    BalanceState balanceState = gl->history.s_history[dlina_history - 1];
+    for (int i = dlina_history; i < cur_time; i++) {
+        gl->history.s_history[i] = balanceState;
+        gl->history.s_history[i].s_time = i;
+    }
+
+
     close_nenuzh_pipes(ps, gl, gl->id_proc);
     close_ne_rw_pipes(ps,gl, gl->id_proc);
-    //отправка всем сообщения о старте
-    // log_start(ev, id_proc);
-    // Message* msg = new_started_msg(gl->id_proc);
-    // send_multicast(gl, msg);
+    // отправка всем сообщения о старте
+    log_start(ev, id_proc);
+    Message* msg = new_started_msg(gl->id_proc);
+    send_multicast(gl, msg);
 
-    // // принятие от всех сообщения, о старте // МОЖЕТ ПОТОМ НАДО ФИКСАНУТЬ
-    // for (size_t j = 0; j < gl->count_proc; j++) {
-    //     if (j != gl->id_proc && j != PARENT_ID) {
-    //         receive(gl, j, msg);
-    //     }
-    // }
-    // log_res_all_start(ev, id_proc);
+    // принятие от всех сообщения, о старте // МОЖЕТ ПОТОМ НАДО ФИКСАНУТЬ
+    for (size_t j = 0; j < gl->count_proc; j++) {
+        if (j != gl->id_proc && j != PARENT_ID) {
+            while(receive(gl, j, msg) == -1) {}
+            if (msg->s_header.s_type != STARTED) {
+                j--;
+            }
+        }
+    }   
+    log_res_all_start(ev, id_proc);
 
     // полезная работа
     Message* lov_msg = (Message*) malloc(sizeof(Message));
     TransferOrder* transfer = (TransferOrder*) malloc(sizeof(TransferOrder));
+    int count_done = 0;
+    int have_stop = 0;
     while (1)
     {
         while(receive_any(gl, lov_msg) == -1) {}
@@ -82,36 +102,48 @@ void run(FILE * ev, FILE * ps, global* gl, int id_proc) {
                 printf("!!!ERRROR!!! PROC %d CHILDREN, type msg = %d, src = %d, dst = %d\n", gl->id_proc, lov_msg->s_header.s_type, transfer->s_src, transfer->s_dst);
             }
         } else if (lov_msg->s_header.s_type == STOP) {
-            printf("PROC %d RECIEVE STOP\n", gl->id_proc);
-            break;
-        } else {
+            Message* done_msg = new_done_msg(gl->id_proc);
+            send_multicast(gl, done_msg);
+            log_done_work(ev, id_proc);
+            have_stop = 1;
+            if (have_stop == 1 && count_done == gl->count_proc - 2) {
+                log_res_all_done(ev, id_proc);
+                Message* history_msg = new_balance_history(gl);
+                printf("LLLLLL %d\n", history_msg->s_header.s_type);
+                send(gl, PARENT_ID, history_msg);
+                printf("LLLLLL %d\n", history_msg->s_header.s_type);
+                break;
+            }
+        } else if (lov_msg->s_header.s_type == DONE){
+            count_done++;
+            if (have_stop == 1 && count_done == gl->count_proc - 2) {
+                log_res_all_done(ev, id_proc);
+                Message* history_msg = new_balance_history(gl);
+                printf("LLLLLL %d\n", history_msg->s_header.s_type);
+                send(gl, PARENT_ID, history_msg);
+                printf("LLLLLL %d\n", history_msg->s_header.s_type);
+                break;
+            }
             //printf("proc %d receive msg unknown type = %d\n", gl->id_proc, lov_msg->s_header.s_type);
+        } else {
+            printf("proc %d res unknown type = %d", gl->id_proc, lov_msg->s_header.s_type);
         }
     }
     
-    
-
-
-
-
-
-
-
 
     // отправка всем, что мы завершили полезную работу
-    // log_done_work(ev, id_proc);
-    // msg = new_done_msg(gl->id_proc);
-    // send_multicast(gl, msg);
     close_after_write(ps,gl);       // потом переместить вниз
 
-    // // принятие от всех о том, что они завершили полезную работу
+    // принятие от всех о том, что они завершили полезную работу
     // for (size_t j = 0; j < gl->count_proc; j++) {
     //     if (j != gl->id_proc && j != PARENT_ID) {
-    //         receive(gl, j, msg);
+    //         while(receive(gl, j, msg) == -1) {}
+    //         if (msg->s_header.s_type != DONE) {
+    //             j--;
+    //         }
     //     }
     // }
     close_after_read(ps,gl);
-    // log_res_all_done(ev, id_proc);
 
     // отправка родительскому процессу истории
 
@@ -122,13 +154,16 @@ void run_parent(FILE * ev, FILE * ps, global* gl, int id_proc) {
     // принимаем сообщение о том, что все стартанули
     close_nenuzh_pipes(ps,gl, gl->id_proc);
     close_ne_rw_pipes(ps,gl, gl->id_proc);
-    // Message* msg = malloc(sizeof(Message));
-    // for (size_t j = 0; j < gl->count_proc; j++) {
-    //     if (j != gl->id_proc && j != PARENT_ID) {
-    //         receive(gl, j, msg);
-    //     }
-    // }
-    // log_res_all_start(ev, gl->id_proc);
+    Message* msg = malloc(sizeof(Message));
+    for (size_t j = 0; j < gl->count_proc; j++) {
+        if (j != gl->id_proc && j != PARENT_ID) {
+            while(receive(gl, j, msg) == -1) {}
+            if (msg->s_header.s_type != STARTED) {
+                j--;
+            }
+        }
+    }
+    log_res_all_start(ev, gl->id_proc);
 
     // запускаем переводы
     int MAX_ID = gl->count_proc - 1;
@@ -138,17 +173,47 @@ void run_parent(FILE * ev, FILE * ps, global* gl, int id_proc) {
     Message* msg_stop = new_stop_msg();
     send_multicast(gl, msg_stop);
 
+    
     // // принимаем сообщения о завершении
-    // for (size_t j = 0; j < gl->count_proc; j++) {
-    //     if (j != gl->id_proc && j != PARENT_ID) {
-    //         receive(gl, j, msg);
-    //     }
-    // }
-    // log_res_all_done(ev, gl->id_proc);
+    for (size_t j = 0; j < gl->count_proc; j++) {
+        if (j != gl->id_proc && j != PARENT_ID) {
+            while(receive(gl, j, msg) == -1) {}
+            if (msg->s_header.s_type != DONE) {
+                printf("PRIVET type = %d", msg->s_header.s_type);
+                j--;
+            }
+        }
+    }
+    log_res_all_done(ev, gl->id_proc);
 
 
     // получаем history от всех дочерних процессов
+    AllHistory all_history;
 
+    for (size_t j = 0; j < gl->count_proc; j++) {
+        if (j != gl->id_proc && j != PARENT_ID) {
+            while(receive(gl, j, msg) == -1) {}
+            if (msg->s_header.s_type != BALANCE_HISTORY) {
+                j--;
+            } else {
+                BalanceHistory history;
+                all_history.s_history_len = all_history.s_history_len + 1;
+                memcpy(&history, msg->s_payload, sizeof(BalanceHistory));
+                BalanceState balanceState = history.s_history[history.s_history_len - 1];
+                if (history.s_history_len - 1 != get_physical_time()) {
+                    int dlina = history.s_history_len;
+                    history.s_history_len = get_physical_time() + 1;
+                    for (int i = dlina; i <= get_physical_time(); i++) {
+                        history.s_history[i] = balanceState;
+                        history.s_history[i].s_time = i;
+                    }
+                }
+                all_history.s_history[history.s_id - 1] = history;
+            }
+        }
+    }
+
+    print_history(&all_history);
 
 
     close_after_write(ps,gl); // МБ ЭТО РАНЬШЕ СРАЗУ ПОСЛЕ ЛАСТ ЗАПИСИ
