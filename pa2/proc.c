@@ -1,61 +1,127 @@
 #include <stdio.h>
 #include "proc.h"
 #include "ipc.h"
+#include <stdlib.h>
+#include <unistd.h>
 #include "format.h"
+#include <string.h>
+#include <malloc.h>
 #include "logger.h"
+#include "banking.h"
 
 
 
 void run(FILE * ev, FILE * ps, global* gl, int id_proc) {
     close_nenuzh_pipes(ps, gl, gl->id_proc);
     close_ne_rw_pipes(ps,gl, gl->id_proc);
-    log_start(ev, id_proc);
-    // char *lol = (char *) malloc(sizeof(char) * 80);
-    //int time = 1;
-    //int current_balance = 10;
-    // sprintf(lol, log_started_fmt, time, id_proc, getpid(), getppid(), current_balance);
-    Message* msg = new_started_msg(gl->id_proc);
-    send_multicast(gl, msg);
-    for (size_t j = 0; j < gl->count_proc; j++) {
-        if (j != gl->id_proc && j != PARENT_ID) {
-            receive(gl, j, msg);
-//            printf("proc %d recieve msg from %zu msg = %s\n", gl->id_proc, j, msg->s_payload);
+    //отправка всем сообщения о старте
+    // log_start(ev, id_proc);
+    // Message* msg = new_started_msg(gl->id_proc);
+    // send_multicast(gl, msg);
+
+    // // принятие от всех сообщения, о старте // МОЖЕТ ПОТОМ НАДО ФИКСАНУТЬ
+    // for (size_t j = 0; j < gl->count_proc; j++) {
+    //     if (j != gl->id_proc && j != PARENT_ID) {
+    //         receive(gl, j, msg);
+    //     }
+    // }
+    // log_res_all_start(ev, id_proc);
+
+    // полезная работа
+    Message* lov_msg = (Message*) malloc(sizeof(Message));
+    TransferOrder* transfer = (TransferOrder*) malloc(sizeof(TransferOrder));
+    while (1)
+    {
+        while(receive_any(gl, lov_msg) == -1) {}
+        if (gl->id_proc == 2) {
+            printf("PROC 2\n");
+        }
+        if (lov_msg->s_header.s_type == TRANSFER) {
+            memcpy(transfer, lov_msg->s_payload, lov_msg->s_header.s_payload_len);
+            printf("INFO: child proc %d, revieve transfer msg src = %d, dst = %d\n", gl->id_proc, transfer->s_src, transfer->s_dst);
+            if (transfer->s_src == gl->id_proc) {
+                Message* msg_to_dst = new_transfer_msg(transfer->s_src, transfer->s_dst, transfer->s_amount);
+                log_transfer_send(ev, gl->id_proc, transfer->s_dst);
+                send(gl, transfer->s_dst, msg_to_dst);
+            } else if (transfer->s_dst == gl->id_proc) {
+                Message* msg_ask_to_parent = new_ack_msg();
+                printf("proc %d send ACK to parent\n", gl->id_proc);
+                send(gl, PARENT_ID, msg_ask_to_parent);
+            } else {
+                printf("ERRROR PROC %d CHILDREN, type msg = %d, src = %d, dst = %d\n", gl->id_proc, lov_msg->s_header.s_type, transfer->s_src, transfer->s_dst);
+            }
+        } else if (lov_msg->s_header.s_type == STOP) {
+            break;
+        } else {
+            printf("proc $d receive msg unknown type = %d\n", gl->id_proc, lov_msg->s_header.s_type);
         }
     }
-    log_res_all_start(ev, id_proc);
-    log_done_work(ev, id_proc);
-    // sprintf(lol, log_done_fmt, time, id_proc, current_balance);
-    msg = new_done_msg(gl->id_proc);
-    send_multicast(gl, msg);
-    close_after_write(ps,gl);
-    for (size_t j = 0; j < gl->count_proc; j++) {
-        if (j != gl->id_proc && j != PARENT_ID) {
-            receive(gl, j, msg);
-//            printf("proc %d recieve msg from %zu msg = %s\n", gl->id_proc, j, msg->s_payload);
-        }
-    }
+    
+    
+
+
+
+
+
+
+
+
+    // отправка всем, что мы завершили полезную работу
+    // log_done_work(ev, id_proc);
+    // msg = new_done_msg(gl->id_proc);
+    // send_multicast(gl, msg);
+    close_after_write(ps,gl);       // потом переместить вниз
+
+    // // принятие от всех о том, что они завершили полезную работу
+    // for (size_t j = 0; j < gl->count_proc; j++) {
+    //     if (j != gl->id_proc && j != PARENT_ID) {
+    //         receive(gl, j, msg);
+    //     }
+    // }
     close_after_read(ps,gl);
-    log_res_all_done(ev, id_proc);
+    // log_res_all_done(ev, id_proc);
+
+    // отправка родительскому процессу истории
+
+
 }
 
 void run_parent(FILE * ev, FILE * ps, global* gl, int id_proc) {
+    // принимаем сообщение о том, что все стартанули
     close_nenuzh_pipes(ps,gl, gl->id_proc);
     close_ne_rw_pipes(ps,gl, gl->id_proc);
-    Message* msg = malloc(sizeof(Message));
-    for (size_t j = 0; j < gl->count_proc; j++) {
-        if (j != gl->id_proc && j != PARENT_ID) {
-            receive(gl, j, msg);
-//            printf("proc %d recieve msg from %zu msg = %s\n", gl->id_proc, j, msg->s_payload);
-        }
-    }
-    log_res_all_start(ev, gl->id_proc);
-    for (size_t j = 0; j < gl->count_proc; j++) {
-        if (j != gl->id_proc && j != PARENT_ID) {
-            receive(gl, j, msg);
-//            printf("proc %d recieve msg from %zu msg = %s\n", gl->id_proc, j, msg->s_payload);
-        }
-    }
-    log_res_all_done(ev, gl->id_proc);
-    close_after_write(ps,gl);
+    // Message* msg = malloc(sizeof(Message));
+    // for (size_t j = 0; j < gl->count_proc; j++) {
+    //     if (j != gl->id_proc && j != PARENT_ID) {
+    //         receive(gl, j, msg);
+    //     }
+    // }
+    // log_res_all_start(ev, gl->id_proc);
+
+    // запускаем переводы
+    int MAX_ID = gl->count_proc - 1;
+    bank_robbery(gl, MAX_ID);
+
+    
+    // отправляем стоп всем
+    Message* msg_stop = new_stop_msg();
+    send_multicast(gl, msg_stop);
+
+
+    // // принимаем сообщения о завершении
+    // for (size_t j = 0; j < gl->count_proc; j++) {
+    //     if (j != gl->id_proc && j != PARENT_ID) {
+    //         receive(gl, j, msg);
+    //     }
+    // }
+    // log_res_all_done(ev, gl->id_proc);
+
+
+    // получаем history от всех дочерних процессов
+
+
+
+
+    close_after_write(ps,gl); // МБ ЭТО РАНЬШЕ СРАЗУ ПОСЛЕ ЛАСТ ЗАПИСИ
     close_after_read(ps,gl);
 }
