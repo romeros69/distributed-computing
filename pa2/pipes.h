@@ -19,6 +19,7 @@ typedef struct
     int id_proc;
     BalanceHistory history;
     int dollar;
+    timestamp_t time_now;
 }__attribute__((packed)) global;
 
 global* new_global(size_t count_proc);

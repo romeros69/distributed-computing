@@ -8,23 +8,25 @@
 #include <malloc.h>
 #include "logger.h"
 #include "banking.h"
+#include "my_lamport.h"
 
 
 
 void run(FILE * ev, FILE * ps, global* gl, int id_proc) {
-    timestamp_t cur_time = get_physical_time();
+    gl->time_now = 0;
+    // timestamp_t cur_time = get_physical_time();
     int dlina_history = gl->history.s_history_len;
-    gl->history.s_history_len = cur_time + 1;
-    gl->history.s_history[cur_time] = (BalanceState) {
+    gl->history.s_history_len = 1;
+    gl->history.s_history[0] = (BalanceState) {
     .s_balance = gl->dollar,
-    .s_time = cur_time,
+    .s_time = gl->time_now,
     .s_balance_pending_in = 0
     };
-    BalanceState balanceState = gl->history.s_history[dlina_history - 1];
-    for (int i = dlina_history; i < cur_time; i++) {
-        gl->history.s_history[i] = balanceState;
-        gl->history.s_history[i].s_time = i;
-    }
+    // BalanceState balanceState = gl->history.s_history[dlina_history - 1];
+    // for (int i = dlina_history; i < cur_time; i++) {
+    //     gl->history.s_history[i] = balanceState;
+    //     gl->history.s_history[i].s_time = i;
+    // }
 
 
     close_nenuzh_pipes(ps, gl, gl->id_proc);
@@ -32,6 +34,7 @@ void run(FILE * ev, FILE * ps, global* gl, int id_proc) {
     // отправка всем сообщения о старте
     log_start(ev, id_proc);
     Message* msg = new_started_msg(gl->id_proc);
+    // msg->s_header.s_local_time = my_get_lamport_time(gl);
     send_multicast(gl, msg);
 
     // принятие от всех сообщения, о старте // МОЖЕТ ПОТОМ НАДО ФИКСАНУТЬ
@@ -58,7 +61,10 @@ void run(FILE * ev, FILE * ps, global* gl, int id_proc) {
             //printf("INFO: child proc %d, revieve transfer msg src = %d, dst = %d\n", gl->id_proc, transfer->s_src, transfer->s_dst);
             if (transfer->s_src == gl->id_proc) {
 
-                timestamp_t cur_time = get_physical_time();
+                gl->time_now = (gl->time_now > lov_msg->s_header.s_local_time) ? gl->time_now : lov_msg->s_header.s_local_time;
+
+                timestamp_t cur_time = my_get_lamport_time(gl);
+                //timestamp_t cur_time = get_physical_time();
                 gl->dollar = gl->dollar - transfer->s_amount;
                 int dlina_history = gl->history.s_history_len;
                 gl->history.s_history_len = cur_time + 1;
@@ -68,6 +74,7 @@ void run(FILE * ev, FILE * ps, global* gl, int id_proc) {
                     .s_balance_pending_in = 0
                 };
                 BalanceState balanceState = gl->history.s_history[dlina_history - 1];
+                balanceState.s_balance_pending_in = transfer->s_amount;
                 for (int i = dlina_history; i < cur_time; i++) {
                     gl->history.s_history[i] = balanceState;
                     gl->history.s_history[i].s_time = i;
@@ -79,7 +86,10 @@ void run(FILE * ev, FILE * ps, global* gl, int id_proc) {
                 lov_msg->s_header.s_type = -1;
             } else if (transfer->s_dst == gl->id_proc) {
 
-                timestamp_t cur_time = get_physical_time();
+                gl->time_now = (gl->time_now > lov_msg->s_header.s_local_time) ? gl->time_now : lov_msg->s_header.s_local_time;
+                 timestamp_t cur_time = my_get_lamport_time(gl);
+                //timestamp_t cur_time = get_physical_time();
+
                 gl->dollar = gl->dollar + transfer->s_amount;
                 int dlina_history = gl->history.s_history_len;
                 gl->history.s_history_len = cur_time + 1;
@@ -89,6 +99,10 @@ void run(FILE * ev, FILE * ps, global* gl, int id_proc) {
                     .s_balance_pending_in = 0
                 };
                 BalanceState balanceState = gl->history.s_history[dlina_history - 1];
+
+                 balanceState.s_balance_pending_in = transfer->s_amount;
+
+                
                 for (int i = dlina_history; i < cur_time; i++) {
                     gl->history.s_history[i] = balanceState;
                     gl->history.s_history[i].s_time = i;
@@ -168,6 +182,7 @@ void run_parent(FILE * ev, FILE * ps, global* gl, int id_proc) {
 
     // получаем history от всех дочерних процессов
     AllHistory all_history;
+    all_history.s_history_len = 0;
 
     for (size_t j = 0; j < gl->count_proc; j++) {
         if (j != gl->id_proc && j != PARENT_ID) {
