@@ -104,12 +104,12 @@ void run(FILE * ev, FILE * ps, global* gl, int id_proc) {
                 };
                 BalanceState balanceState = gl->history.s_history[dlina_history - 1];
 
-                balanceState.s_balance_pending_in = transfer->s_amount;
 
                 
                 for (int i = dlina_history; i < cur_time; i++) {
                     gl->history.s_history[i] = balanceState;
                     gl->history.s_history[i].s_time = i;
+                    balanceState.s_balance_pending_in = transfer->s_amount;
                 }
 
                 Message* msg_ask_to_parent = new_ack_msg();
