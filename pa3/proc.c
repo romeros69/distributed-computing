@@ -15,7 +15,7 @@
 void run(FILE * ev, FILE * ps, global* gl, int id_proc) {
     gl->time_now = 0;
     // timestamp_t cur_time = get_physical_time();
-    int dlina_history = gl->history.s_history_len;
+    //size_t dlina_history = gl->history.s_history_len;
     gl->history.s_history_len = 1;
     gl->history.s_history[0] = (BalanceState) {
     .s_balance = gl->dollar,
