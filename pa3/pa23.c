@@ -32,7 +32,6 @@ int main(int argc, char * argv[])
     global* gl = new_global(count_proc);
     // подготовка пайпов
     create_pipes(gl);
-    print_global_pipes(gl, PARENT_ID);
     // print_global_pipes(gl, 0);
     int p1, p2, p3, p4, p5, p6, p7, p8, p9, p10;
     p1 = fork();
