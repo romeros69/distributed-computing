@@ -41,6 +41,9 @@ int receive(void * self, local_id from, Message * msg){
     if (header_res == -1) {
         return -1;
     }
+    if (des == 37) {
+        printf("proc %d receive msg from %d header_type = %d, payload_len = %d", gl->id_proc, from, msg->s_header.s_type, msg->s_header.s_payload_len);
+    }
     int msg_res = read(des, msg->s_payload, msg->s_header.s_payload_len);
     if (header_res == -1 || msg_res == -1) {
         return -1;
