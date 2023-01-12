@@ -198,6 +198,7 @@ void run_parent(FILE * ev, FILE * ps, global* gl, int id_proc) {
 
     // отправляем стоп всем
     Message* msg_stop = new_stop_msg();
+    msg_stop->s_header.s_local_time = my_get_lamport_time(gl);
     send_multicast(gl, msg_stop);
 
     
