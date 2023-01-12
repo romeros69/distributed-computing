@@ -221,7 +221,7 @@ void run_parent(FILE * ev, FILE * ps, global* gl, int id_proc) {
     }
 
     print_history(&all_history);
-
+    fprintf(ev, "proverka konca\n");
     close_after_write(ps,gl);
     close_after_read(ps,gl);
 }
