@@ -120,6 +120,7 @@ void run(FILE * ev, FILE * ps, global* gl, int id_proc) {
 
                 Message* msg_ask_to_parent = new_ack_msg();
                 log_transfer_receive(gl, ev, gl->id_proc, transfer->s_amount, transfer->s_src);
+                msg_ask_to_parent->s_header.s_local_time = my_get_lamport_time(gl);
                 send(gl, PARENT_ID, msg_ask_to_parent);
                 lov_msg->s_header.s_type = -1;
             } else {

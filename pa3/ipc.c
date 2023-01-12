@@ -11,13 +11,7 @@ int send(void * self, local_id dst, const Message * msg){
         des = gl->gen[gl->id_proc][dst].b_to_s[1];
     }
     
-    // if (msg->s_header.s_type == DONE) {
-    //     printf("111111111 proc %d, count_bytes = %d, j = %zu, msg = %s\n", gl->id_proc,msg->s_header.s_payload_len + sizeof(MessageHeader), dst, msg->s_payload);
-    // }
-    size_t count = write(des, msg, sizeof(MessageHeader) + msg->s_header.s_payload_len);
-    // if (msg->s_header.s_type == DONE) {
-    //     printf("222222222 proc %d, j = %zu, count_bytes = %d\n", gl->id_proc, dst, count);
-    // }
+    write(des, msg, sizeof(MessageHeader) + msg->s_header.s_payload_len);
     return 0;
 }
 
