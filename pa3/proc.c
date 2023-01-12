@@ -60,14 +60,9 @@ void run(FILE * ev, FILE * ps, global* gl, int id_proc) {
             memcpy(transfer, lov_msg->s_payload, lov_msg->s_header.s_payload_len);
             //printf("INFO: child proc %d, revieve transfer msg src = %d, dst = %d\n", gl->id_proc, transfer->s_src, transfer->s_dst);
             if (transfer->s_src == gl->id_proc) {
-                
-                // if (gl->time_now > lov_msg->s_header.s_local_time) {
-                //     gl->time_now = 
-                // }
                 gl->time_now = (gl->time_now > lov_msg->s_header.s_local_time) ? gl->time_now : lov_msg->s_header.s_local_time;
 
                 timestamp_t cur_time = my_get_lamport_time(gl);
-                //timestamp_t cur_time = get_physical_time();
                 gl->dollar = gl->dollar - transfer->s_amount;
                 int dlina_history = gl->history.s_history_len;
                 gl->history.s_history_len = cur_time + 1;
@@ -81,35 +76,40 @@ void run(FILE * ev, FILE * ps, global* gl, int id_proc) {
                      balanceState.s_balance_pending_in = 0;
                     gl->history.s_history[i] = balanceState;
                     gl->history.s_history[i].s_time = i;
+                    gl->history.s_history->s_balance_pending_in = 0;
                 }
 
                 Message* msg_to_dst = new_transfer_msg(transfer->s_src, transfer->s_dst, transfer->s_amount);
-                log_transfer_send(gl, ev, gl->id_proc, transfer->s_amount, transfer->s_dst);
                 msg_to_dst->s_header.s_local_time = my_get_lamport_time(gl);
+                log_transfer_send(gl, ev, gl->id_proc, transfer->s_amount, transfer->s_dst);
                 send(gl, transfer->s_dst, msg_to_dst);
                 lov_msg->s_header.s_type = -1;
             } else if (transfer->s_dst == gl->id_proc) {
-
-                gl->time_now = (gl->time_now > lov_msg->s_header.s_local_time) ? gl->time_now : lov_msg->s_header.s_local_time;
-                timestamp_t cur_time = my_get_lamport_time(gl);
-                // timestamp_t cur_time = get_physical_time();
+                
+                timestamp_t receive_time = lov_msg->s_header.s_local_time;
+                if (gl->time_now < lov_msg->s_header.s_local_time) {
+                    gl->time_now = lov_msg->s_header.s_local_time;
+                }
 
                 gl->dollar = gl->dollar + transfer->s_amount;
                 int dlina_history = gl->history.s_history_len;
-                gl->history.s_history_len = cur_time + 1;
-                gl->history.s_history[cur_time] = (BalanceState) {
+                gl->history.s_history_len = gl->time_now + 1;
+                gl->history.s_history[gl->time_now] = (BalanceState) {
                     .s_balance = gl->dollar,
-                    .s_time = cur_time,
+                    .s_time = gl->time_now,
                     .s_balance_pending_in = 0
                 };
                 BalanceState balanceState = gl->history.s_history[dlina_history - 1];
 
 
-                
-                for (int i = dlina_history; i < cur_time; i++) {
+                // printf("proc %d, balance = %d, time = %d after receive bablo, bablo in balbance %d\n", gl->id_proc, gl->dollar, gl->time_now, gl->history.s_history[cur_time].s_balance);
+                for (int i = dlina_history; i < gl->time_now; i++) {
                     gl->history.s_history[i] = balanceState;
                     gl->history.s_history[i].s_time = i;
-                    balanceState.s_balance_pending_in = transfer->s_amount;
+                }
+
+                for (int i = receive_time - 1; i < gl->time_now; i++) {
+                    gl->history.s_history[i].s_balance_pending_in = transfer->s_amount;
                 }
 
                 Message* msg_ask_to_parent = new_ack_msg();
@@ -189,26 +189,33 @@ void run_parent(FILE * ev, FILE * ps, global* gl, int id_proc) {
     // получаем history от всех дочерних процессов
     AllHistory all_history;
     all_history.s_history_len = 0;
-
+    gl->time_now = 0;
     for (size_t j = 0; j < gl->count_proc; j++) {
         if (j != gl->id_proc && j != PARENT_ID) {
             while(receive(gl, j, msg) == -1) {}
             if (msg->s_header.s_type != BALANCE_HISTORY) {
                 j--;
             } else {
-                BalanceHistory history;
+                if (gl->time_now < msg->s_header.s_local_time) {
+                    gl->time_now = msg->s_header.s_local_time;
+                }
                 all_history.s_history_len = all_history.s_history_len + 1;
+
+                BalanceHistory history;
                 memcpy(&history, msg->s_payload, sizeof(BalanceHistory));
-                BalanceState balanceState = history.s_history[history.s_history_len - 1];
-                //if (history.s_history_len - 1 != msg->s_header.s_local_time) {
-                    int dlina = history.s_history_len;
-                    history.s_history_len = msg->s_header.s_local_time + 1;
-                    for (int i = dlina; i <= msg->s_header.s_local_time; i++) {
-                        history.s_history[i] = balanceState;
-                        history.s_history[i].s_time = i;
-                    }
-                 //}
                 all_history.s_history[history.s_id - 1] = history;
+
+                for (int k = 0; k < all_history.s_history_len; k++) {
+                    BalanceHistory work_history = all_history.s_history[k];
+                    BalanceState last_state = work_history.s_history[work_history.s_history_len - 1];
+                        int old_history_len = work_history.s_history_len;
+                        work_history.s_history_len = gl->time_now + 1;
+                        for (int p = old_history_len; p <= gl->time_now; p++) {
+                            work_history.s_history[p] = last_state;
+                            work_history.s_history[p].s_time = p;
+                        }
+                    all_history.s_history[work_history.s_id - 1] = work_history;
+                }
             }
         }
     }
