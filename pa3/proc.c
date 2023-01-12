@@ -150,6 +150,7 @@ void run(FILE * ev, FILE * ps, global* gl, int id_proc) {
 }
 
 void run_parent(FILE * ev, FILE * ps, global* gl, int id_proc) {
+    gl->id_proc = 0;
     // принимаем сообщение о том, что все стартанули
     close_nenuzh_pipes(ps,gl, gl->id_proc);
     close_ne_rw_pipes(ps,gl, gl->id_proc);

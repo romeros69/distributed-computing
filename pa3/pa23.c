@@ -155,8 +155,8 @@ int main(int argc, char * argv[])
         }
     }
 
-    run_parent(events, pipes,gl, PARENT_ID);  // тут стопорится родительский
-    for (size_t i = 0; i < 10; i++) {
+    run_parent(events, pipes, gl, PARENT_ID);  // тут стопорится родительский
+    for (size_t i = 0; i < count_proc - 1; i++) {
         wait(NULL);
     }
     fclose(events);

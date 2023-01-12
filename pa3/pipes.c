@@ -85,6 +85,7 @@ void close_ne_rw_pipes(FILE * pipes, global* gl, int cur_id_proc) {
                 close(gl->gen[cur_id_proc][j].b_to_s[1]);
                 fprintf(pipes, "INFO_PIPES: type=ne_otnos_rw, proc %d close %d\n", gl->id_proc, gl->gen[cur_id_proc][j].s_to_b[0]);
                 fprintf(pipes, "INFO_PIPES: type=ne_otnos_rw, proc %d close %d\n", gl->id_proc, gl->gen[cur_id_proc][j].b_to_s[1]);
+            
             } else {
                 close(gl->gen[cur_id_proc][j].s_to_b[1]);
                 close(gl->gen[cur_id_proc][j].b_to_s[0]);
@@ -93,7 +94,6 @@ void close_ne_rw_pipes(FILE * pipes, global* gl, int cur_id_proc) {
             }
         }
     }
-     print_global_pipes(gl, gl->id_proc);
 }
 
 void close_after_write(FILE * pipes, global* gl) {
