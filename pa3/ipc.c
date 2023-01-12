@@ -38,7 +38,7 @@ int receive(void * self, local_id from, Message * msg){
     if (gl->id_proc == from) {
         return -1;
     }
-    int header_res = read(des, &(msg->s_header), sizeof(MessageHeader));
+    int header_res = read(des, &(msg->s_header), 8);
     if (header_res == -1) {
         return -1;
     }
