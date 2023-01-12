@@ -90,7 +90,7 @@ void run(FILE * ev, FILE * ps, global* gl, int id_proc) {
                 if (gl->time_now < lov_msg->s_header.s_local_time) {
                     gl->time_now = lov_msg->s_header.s_local_time;
                 }
-
+                my_get_lamport_time(gl);
                 gl->dollar = gl->dollar + transfer->s_amount;
                 int dlina_history = gl->history.s_history_len;
                 gl->history.s_history_len = gl->time_now + 1;

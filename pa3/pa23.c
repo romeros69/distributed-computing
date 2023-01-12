@@ -6,6 +6,7 @@
 #include "proc.h"
 #include "common.h"
 #include "banking.h"
+#include "format.h"
 
 int main(int argc, char * argv[])
 {
@@ -27,11 +28,11 @@ int main(int argc, char * argv[])
     FILE *pipes;
     events = fopen(events_log, "w");
     pipes = fopen(pipes_log, "w");
-
     // инициализация структуры с пайпами
     global* gl = new_global(count_proc);
     // подготовка пайпов
     create_pipes(gl);
+    print_global_pipes(gl, PARENT_ID);
     // print_global_pipes(gl, 0);
     int p1, p2, p3, p4, p5, p6, p7, p8, p9, p10;
     p1 = fork();

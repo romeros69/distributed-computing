@@ -54,7 +54,7 @@ Message* new_transfer_msg(local_id src, local_id dst, balance_t amount) {
     MessageHeader* header = (MessageHeader*) malloc(sizeof(MessageHeader));
     header->s_magic = MESSAGE_MAGIC;
     header->s_type = TRANSFER;
-    header->s_local_time = get_physical_time();
+    header->s_local_time = 0;
     header->s_payload_len = sizeof(transfer);
     Message* msg = (Message*) malloc(sizeof(Message));
     memcpy(msg->s_payload, &transfer, sizeof(transfer));
@@ -67,7 +67,7 @@ Message* new_ack_msg() {
     header->s_magic = MESSAGE_MAGIC;
     header->s_payload_len = 0;
     header->s_type = ACK;
-    header->s_local_time = get_physical_time();
+    header->s_local_time = 0;
     Message* msg = (Message*) malloc(sizeof(Message));
     msg->s_header = *header;
     return msg;
@@ -78,7 +78,7 @@ Message* new_stop_msg() {
     header->s_magic = MESSAGE_MAGIC;
     header->s_payload_len = 0;
     header->s_type = STOP;
-    header->s_local_time = get_physical_time();
+    header->s_local_time = 0;
     Message* msg = (Message*) malloc(sizeof(Message));
     msg->s_header = *header;
     return msg;
@@ -88,7 +88,7 @@ Message* new_balance_history(global* gl) {
     MessageHeader* header = (MessageHeader*) malloc(sizeof(MessageHeader));
     header->s_type = BALANCE_HISTORY;
     header->s_magic = MESSAGE_MAGIC;
-    header->s_local_time = get_physical_time();
+    header->s_local_time = 0;
     size_t itog_size = sizeof(gl->history) - (sizeof(gl->history.s_history) - (sizeof(BalanceState) * gl->history.s_history_len));
     header->s_payload_len = itog_size;
     Message* msg = (Message*) malloc(sizeof(Message));
