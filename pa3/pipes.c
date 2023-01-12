@@ -86,7 +86,7 @@ void close_ne_rw_pipes(FILE * pipes, global* gl, int cur_id_proc) {
                 fprintf(pipes, "INFO_PIPES: type=ne_otnos_rw, proc %d close %d\n", gl->id_proc, gl->gen[cur_id_proc][j].s_to_b[0]);
                 fprintf(pipes, "INFO_PIPES: type=ne_otnos_rw, proc %d close %d\n", gl->id_proc, gl->gen[cur_id_proc][j].b_to_s[1]);
             } else {
-                // close(gl->gen[cur_id_proc][j].s_to_b[1]);
+                close(gl->gen[cur_id_proc][j].s_to_b[1]);
                 close(gl->gen[cur_id_proc][j].b_to_s[0]);
                 fprintf(pipes, "INFO_PIPES: type=ne_otnos_rw, proc %d close %d\n", gl->id_proc, gl->gen[cur_id_proc][j].s_to_b[1]);
                 fprintf(pipes, "INFO_PIPES: type=ne_otnos_rw, proc %d close %d\n", gl->id_proc, gl->gen[cur_id_proc][j].b_to_s[0]);
