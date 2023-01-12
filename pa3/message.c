@@ -20,10 +20,10 @@ Message* new_started_msg(int id_proc) {
     header->s_type = STARTED;
     header->s_local_time = get_physical_time();
     Message* msg = (Message*) malloc(sizeof(Message));
-    msg->s_header = *header;
     for (size_t i = 0; i < len_str; i++) {
         msg->s_payload[i] = data[i];
     }
+    msg->s_header = *header;
     return msg;
 }
 
@@ -39,10 +39,10 @@ Message* new_done_msg(int id_proc) {
     header->s_type = DONE;
     header->s_local_time = get_physical_time();
     Message* msg = (Message*) malloc(sizeof(Message));
-    msg->s_header = *header;
     for (size_t i = 0; i < len_str; i++) {
         msg->s_payload[i] = data[i];
     }
+    msg->s_header = *header;
     return msg;
 }
 
@@ -57,8 +57,8 @@ Message* new_transfer_msg(local_id src, local_id dst, balance_t amount) {
     header->s_local_time = get_physical_time();
     header->s_payload_len = sizeof(transfer);
     Message* msg = (Message*) malloc(sizeof(Message));
-    msg->s_header = *header;
     memcpy(msg->s_payload, &transfer, sizeof(transfer));
+    msg->s_header = *header;
     return msg;
 }
 
@@ -92,8 +92,8 @@ Message* new_balance_history(global* gl) {
     size_t itog_size = sizeof(gl->history) - (sizeof(gl->history.s_history) - (sizeof(BalanceState) * gl->history.s_history_len));
     header->s_payload_len = itog_size;
     Message* msg = (Message*) malloc(sizeof(Message));
-    msg->s_header = *header;
     memcpy(msg->s_payload, &(gl->history), itog_size);
+    msg->s_header = *header;
     return msg;
 }
 
