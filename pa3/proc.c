@@ -36,6 +36,7 @@ void run(FILE * ev, FILE * ps, global* gl, int id_proc) {
     log_start(gl, ev, id_proc);
     Message* msg = new_started_msg(gl->id_proc);
     // msg->s_header.s_local_time = my_get_lamport_time(gl);
+    msg->s_header.s_local_time = my_get_lamport_time(gl);
     send_multicast(gl, msg);
 
     // принятие от всех сообщения, о старте // МОЖЕТ ПОТОМ НАДО ФИКСАНУТЬ
@@ -44,6 +45,9 @@ void run(FILE * ev, FILE * ps, global* gl, int id_proc) {
             while(receive(gl, j, msg) == -1) {}
             if (msg->s_header.s_type != STARTED) {
                 j--;
+            } else {
+                gl->time_now = (gl->time_now > msg->s_header.s_local_time) ? gl->time_now : msg->s_header.s_local_time;
+                my_get_lamport_time(gl);
             }
         }
     }   
@@ -122,9 +126,12 @@ void run(FILE * ev, FILE * ps, global* gl, int id_proc) {
                 printf("!!!ERRROR!!! PROC %d CHILDREN, type msg = %d, src = %d, dst = %d\n", gl->id_proc, lov_msg->s_header.s_type, transfer->s_src, transfer->s_dst);
             }
         } else if (lov_msg->s_header.s_type == STOP) {
+            gl->time_now = (gl->time_now > lov_msg->s_header.s_local_time) ? gl->time_now : lov_msg->s_header.s_local_time;
+            my_get_lamport_time(gl);
             printf("%d: process %d reveive STOP message\n", gl->time_now, gl->id_proc);
             Message* done_msg = new_done_msg(gl, gl->id_proc);
             // printf("111111111 proc %d\n", gl->id_proc);
+            done_msg->s_header.s_local_time = my_get_lamport_time(gl);
             send_multicast(gl, done_msg);                   // вот тут раз иногда происходит завис
             // printf("222222222 proc %d\n", gl->id_proc);
             log_done_work(gl, ev, id_proc);     // 
@@ -132,13 +139,15 @@ void run(FILE * ev, FILE * ps, global* gl, int id_proc) {
             if (have_stop == 1 && count_done == gl->count_proc - 2) {
                 log_res_all_done(gl, ev, id_proc);
                 Message* history_msg = new_balance_history(gl);
-                history_msg->s_header.s_local_time = gl->time_now;
+                history_msg->s_header.s_local_time = my_get_lamport_time(gl);
                 send(gl, PARENT_ID, history_msg);
                 printf("%d: process %d send HISTORY message to parent\n", gl->time_now, gl->id_proc);
                 break;
             }
             continue;
         } else if (lov_msg->s_header.s_type == DONE){
+            gl->time_now = (gl->time_now > lov_msg->s_header.s_local_time) ? gl->time_now : lov_msg->s_header.s_local_time;
+            my_get_lamport_time(gl);
             count_done++;
             
             //printf("PRRRROOC %d RECEIEVE DONE: %s\n", gl->id_proc, lov_msg->s_payload);
@@ -146,7 +155,7 @@ void run(FILE * ev, FILE * ps, global* gl, int id_proc) {
             if (have_stop == 1 && count_done == gl->count_proc - 2) {
                 log_res_all_done(gl, ev, id_proc);
                 Message* history_msg = new_balance_history(gl);
-                history_msg->s_header.s_local_time = gl->time_now;
+                history_msg->s_header.s_local_time = my_get_lamport_time(gl);
                 send(gl, PARENT_ID, history_msg);
                 printf("%d: process %d send HISTORY message to parent\n", gl->time_now, gl->id_proc);
                 break;
@@ -164,6 +173,7 @@ void run(FILE * ev, FILE * ps, global* gl, int id_proc) {
 
 void run_parent(FILE * ev, FILE * ps, global* gl, int id_proc) {
     gl->id_proc = 0;
+    gl->time_now = 0;
     // принимаем сообщение о том, что все стартанули
     close_nenuzh_pipes(ps,gl, gl->id_proc);
     close_ne_rw_pipes(ps,gl, gl->id_proc);
@@ -173,6 +183,9 @@ void run_parent(FILE * ev, FILE * ps, global* gl, int id_proc) {
             while(receive(gl, j, msg) == -1) {}
             if (msg->s_header.s_type != STARTED) {
                 j--;
+            } else {
+                gl->time_now = (gl->time_now > msg->s_header.s_local_time) ? gl->time_now : msg->s_header.s_local_time;
+                my_get_lamport_time(gl);
             }
         }
     }
@@ -194,6 +207,9 @@ void run_parent(FILE * ev, FILE * ps, global* gl, int id_proc) {
             if (msg->s_header.s_type != DONE) {
                 printf("PRIVET type = %d", msg->s_header.s_type);
                 j--;
+            } else {
+                gl->time_now = (gl->time_now > msg->s_header.s_local_time) ? gl->time_now : msg->s_header.s_local_time;
+                my_get_lamport_time(gl);
             }
         }
     }
@@ -203,7 +219,6 @@ void run_parent(FILE * ev, FILE * ps, global* gl, int id_proc) {
     // получаем history от всех дочерних процессов
     AllHistory all_history;
     all_history.s_history_len = 0;
-    gl->time_now = 0;
     for (size_t j = 0; j < gl->count_proc; j++) {
         if (j != gl->id_proc && j != PARENT_ID) {
             while(receive(gl, j, msg) == -1) {}
