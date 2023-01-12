@@ -13,6 +13,7 @@
 
 
 void run(FILE * ev, FILE * ps, global* gl, int id_proc) {
+    gl->id_proc = id_proc;
     gl->time_now = 0;
     // timestamp_t cur_time = get_physical_time();
     //size_t dlina_history = gl->history.s_history_len;
@@ -120,6 +121,7 @@ void run(FILE * ev, FILE * ps, global* gl, int id_proc) {
                 printf("!!!ERRROR!!! PROC %d CHILDREN, type msg = %d, src = %d, dst = %d\n", gl->id_proc, lov_msg->s_header.s_type, transfer->s_src, transfer->s_dst);
             }
         } else if (lov_msg->s_header.s_type == STOP) {
+            printf("%d: process %d reveive STOP message\n", gl->time_now, gl->id_proc);
             Message* done_msg = new_done_msg(gl->id_proc);
             send_multicast(gl, done_msg);
             log_done_work(gl, ev, id_proc);
