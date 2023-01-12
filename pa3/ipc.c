@@ -10,8 +10,7 @@ int send(void * self, local_id dst, const Message * msg){
     } else {
         des = gl->gen[gl->id_proc][dst].b_to_s[1];
     }
-    write(des, msg, 8 + msg->s_header.s_payload_len);
-    //printf("proc %d write to dst=%d use des=%d data= %s len = %zu\n", gl->id_proc, dst, des, msg->s_payload, msg->s_header.s_payload_len + 8);
+    int count = write(des, msg, sizeof(MessageHeader) + msg->s_header.s_payload_len);
     return 0;
 }
 

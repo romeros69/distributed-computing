@@ -18,7 +18,7 @@ Message* new_started_msg(int id_proc) {
     header->s_magic = MESSAGE_MAGIC;
     header->s_payload_len = len_str;
     header->s_type = STARTED;
-    header->s_local_time = get_physical_time();
+    header->s_local_time = 0;
     Message* msg = (Message*) malloc(sizeof(Message));
     for (size_t i = 0; i < len_str; i++) {
         msg->s_payload[i] = data[i];
@@ -37,7 +37,7 @@ Message* new_done_msg(int id_proc) {
     header->s_magic = MESSAGE_MAGIC;
     header->s_payload_len = len_str;
     header->s_type = DONE;
-    header->s_local_time = get_physical_time();
+    header->s_local_time = 0;
     Message* msg = (Message*) malloc(sizeof(Message));
     for (size_t i = 0; i < len_str; i++) {
         msg->s_payload[i] = data[i];

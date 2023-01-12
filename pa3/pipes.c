@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "mm_malloc.h"
 #include "pipes.h"
+#include "format.h"
 
 // Конструктор для создания двумерного массива для будущих пайпов
 // count_proc - count of all process in system
@@ -55,6 +56,7 @@ void close_all_chpok(chpok ch) {
     close(ch.s_to_b[1]);
     close(ch.b_to_s[0]);
     close(ch.b_to_s[1]);
+
 }
 
 // закрывает все пайпы не относящиеся никак к текущему процессу - проверка №1 - ок
@@ -84,13 +86,14 @@ void close_ne_rw_pipes(FILE * pipes, global* gl, int cur_id_proc) {
                 fprintf(pipes, "INFO_PIPES: type=ne_otnos_rw, proc %d close %d\n", gl->id_proc, gl->gen[cur_id_proc][j].s_to_b[0]);
                 fprintf(pipes, "INFO_PIPES: type=ne_otnos_rw, proc %d close %d\n", gl->id_proc, gl->gen[cur_id_proc][j].b_to_s[1]);
             } else {
-                close(gl->gen[cur_id_proc][j].s_to_b[1]);
+                // close(gl->gen[cur_id_proc][j].s_to_b[1]);
                 close(gl->gen[cur_id_proc][j].b_to_s[0]);
                 fprintf(pipes, "INFO_PIPES: type=ne_otnos_rw, proc %d close %d\n", gl->id_proc, gl->gen[cur_id_proc][j].s_to_b[1]);
                 fprintf(pipes, "INFO_PIPES: type=ne_otnos_rw, proc %d close %d\n", gl->id_proc, gl->gen[cur_id_proc][j].b_to_s[0]);
             }
         }
     }
+     print_global_pipes(gl, gl->id_proc);
 }
 
 void close_after_write(FILE * pipes, global* gl) {
