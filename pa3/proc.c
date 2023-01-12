@@ -55,8 +55,9 @@ void run(FILE * ev, FILE * ps, global* gl, int id_proc) {
     int count_done = 0;
     int have_stop = 0;
     while (1)
-    {
-        while(receive_any(gl, lov_msg) == -1) {}
+    {   
+        
+        while(receive_any(gl, lov_msg) != 0) {}
         if (lov_msg->s_header.s_type == TRANSFER) {
             memcpy(transfer, lov_msg->s_payload, lov_msg->s_header.s_payload_len);
             //printf("INFO: child proc %d, revieve transfer msg src = %d, dst = %d\n", gl->id_proc, transfer->s_src, transfer->s_dst);
@@ -122,29 +123,39 @@ void run(FILE * ev, FILE * ps, global* gl, int id_proc) {
             }
         } else if (lov_msg->s_header.s_type == STOP) {
             printf("%d: process %d reveive STOP message\n", gl->time_now, gl->id_proc);
-            Message* done_msg = new_done_msg(gl->id_proc);
-            send_multicast(gl, done_msg);
-            log_done_work(gl, ev, id_proc);
+            Message* done_msg = new_done_msg(gl, gl->id_proc);
+            // printf("111111111 proc %d\n", gl->id_proc);
+            send_multicast(gl, done_msg);                   // вот тут раз иногда происходит завис
+            // printf("222222222 proc %d\n", gl->id_proc);
+            log_done_work(gl, ev, id_proc);     // 
             have_stop = 1;
             if (have_stop == 1 && count_done == gl->count_proc - 2) {
                 log_res_all_done(gl, ev, id_proc);
                 Message* history_msg = new_balance_history(gl);
                 history_msg->s_header.s_local_time = gl->time_now;
                 send(gl, PARENT_ID, history_msg);
+                printf("%d: process %d send HISTORY message to parent\n", gl->time_now, gl->id_proc);
                 break;
             }
+            continue;
         } else if (lov_msg->s_header.s_type == DONE){
             count_done++;
+            
+            //printf("PRRRROOC %d RECEIEVE DONE: %s\n", gl->id_proc, lov_msg->s_payload);
+            
             if (have_stop == 1 && count_done == gl->count_proc - 2) {
                 log_res_all_done(gl, ev, id_proc);
                 Message* history_msg = new_balance_history(gl);
                 history_msg->s_header.s_local_time = gl->time_now;
                 send(gl, PARENT_ID, history_msg);
+                printf("%d: process %d send HISTORY message to parent\n", gl->time_now, gl->id_proc);
                 break;
             }
+            continue;
+            // lov_msg->s_header.s_type = -1;
             //printf("proc %d receive msg unknown type = %d\n", gl->id_proc, lov_msg->s_header.s_type);
         } else {
-            printf("proc %d res unknown type = %d", gl->id_proc, lov_msg->s_header.s_type);
+            // printf("proc %d res unknown type = %d", gl->id_proc, lov_msg->s_header.s_type);
         }
     }
     close_after_write(ps,gl);      

@@ -9,7 +9,7 @@
 
 Message* new_started_msg(int id_proc);
 
-Message* new_done_msg(int id_proc);
+Message* new_done_msg(global* gl, int id_proc);
 
 Message* new_transfer_msg(local_id src, local_id dst, balance_t amount);
 

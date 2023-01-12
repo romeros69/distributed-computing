@@ -27,11 +27,9 @@ Message* new_started_msg(int id_proc) {
     return msg;
 }
 
-Message* new_done_msg(int id_proc) {
+Message* new_done_msg(global* gl, int id_proc) {
     char *data = (char *) malloc(sizeof(char) * 80);
-    int time = 1;
-    int current_balance = 10;
-    sprintf(data, log_done_fmt, time, id_proc, current_balance);
+    sprintf(data, log_done_fmt, gl->time_now, id_proc, gl->dollar);
     size_t len_str = strlen(data);
     MessageHeader* header = (MessageHeader*) malloc(sizeof(MessageHeader));
     header->s_magic = MESSAGE_MAGIC;

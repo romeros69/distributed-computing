@@ -13,9 +13,8 @@
 void log_start(global* gl ,FILE * events, int id_proc) {
     int current_pid = getpid();
     int parent_pid = getppid();
-    int cur_balance = 10;
-    printf(log_started_fmt, gl->time_now, id_proc, current_pid, parent_pid, cur_balance);
-    fprintf(events, log_started_fmt, gl->time_now, id_proc, current_pid, parent_pid, cur_balance );
+    printf(log_started_fmt, gl->time_now, id_proc, current_pid, parent_pid, gl->dollar);
+    fprintf(events, log_started_fmt, gl->time_now, id_proc, current_pid, parent_pid, gl->dollar );
 }
 
 void log_res_all_start(global* gl ,FILE * events, int id_proc) {
@@ -24,9 +23,8 @@ void log_res_all_start(global* gl ,FILE * events, int id_proc) {
 }
 
 void log_done_work(global* gl ,FILE * events, int id_proc) {
-    int cur_balance = 10;
-    printf(log_done_fmt, gl->time_now, id_proc, cur_balance);
-    fprintf(events, log_done_fmt, gl->time_now, id_proc, cur_balance);
+    printf(log_done_fmt, gl->time_now, id_proc, gl->dollar);
+    fprintf(events, log_done_fmt, gl->time_now, id_proc, gl->dollar);
 }
 
 void log_res_all_done(global* gl ,FILE * events, int id_proc) {
