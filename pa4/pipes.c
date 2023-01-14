@@ -123,3 +123,46 @@ void close_after_read(FILE * pipes, global* gl) {
     }
 }
 
+int my_compare(const my_queue* mq1, const my_queue* mq2) {
+    if (mq1->time < mq2->time) {
+        return -1;
+    } else if (mq1->time > mq2->time) {
+        return 1;
+    } else {
+        if (mq1->id_proc < mq2->id_proc) {
+            return -1;
+        } else if (mq1->id_proc > mq2->id_proc){
+            return 1;
+        }
+    }
+    return 0;
+}
+
+void my_sort(global * gl) {
+    qsort(gl->mq, gl->size_mq, sizeof(my_queue), (int(*) (const void *, const void *)) my_compare);
+}
+
+my_queue pop(global * gl) {
+    my_queue result = gl->mq[0];
+    for (int i = 0; i < gl->size_mq - 1;i++) {
+        gl->mq[i] = gl->mq[i + 1];
+    }
+    gl->size_mq--;
+    return result;
+}
+
+// ok
+void push(global * gl, my_queue new_element) {
+    if (gl->size_mq == 9) {
+        printf("ERROR");
+    }
+    gl->mq[gl->size_mq] = new_element;
+    gl->size_mq++;
+    my_sort(gl);
+}
+
+void print_mq(global * gl) {
+    for (int i = 0; i < gl->size_mq; i++) {
+        printf("(%d, %d) ", gl->mq[i].time, gl->mq[i].id_proc);
+    }
+}
