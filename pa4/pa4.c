@@ -112,6 +112,7 @@ int main(int argc, char *argv[]) {
         }
     }
     gl->id_proc = 0;
+    gl->time_now = 0;
     run_parent(events, pipes,gl, PARENT_ID);  // тут стопорится родительский
     for (size_t i = 0; i < count_proc; i++) {
         wait(NULL);
