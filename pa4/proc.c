@@ -3,10 +3,14 @@
 #include "ipc.h"
 #include "logger.h"
 #include "my_lamport.h"
+#include "pa2345.h"
 
 
 
 void run(FILE * ev, FILE * ps, global* gl, int id_proc) {
+    gl->mq = (my_queue*) malloc(sizeof(my_queue) * 9);
+    gl->size_mq = 0;
+    gl->id_proc = id_proc;
     gl->time_now = 0;
     close_nenuzh_pipes(ps, gl, gl->id_proc);
     close_ne_rw_pipes(ps,gl, gl->id_proc);
@@ -26,6 +30,22 @@ void run(FILE * ev, FILE * ps, global* gl, int id_proc) {
         }
     }   
     log_res_all_start(gl, ev, id_proc);
+    // полезная работа
+
+    for (int i = 1; i <= gl->id_proc * 5; i++) {
+        request_cs(gl);
+        
+        const char * data = (char*) malloc(sizeof(100));
+        sprintf(data, log_loop_operation_fmt, gl->id_proc, gl->id_proc*5);
+        print(data);
+
+        release_cs(gl);
+    }
+
+
+
+
+
     log_done_work(gl, ev, id_proc);
     msg = new_done_msg(gl, gl->id_proc);
     msg->s_header.s_local_time = my_get_lamport_time(gl);
@@ -47,6 +67,7 @@ void run(FILE * ev, FILE * ps, global* gl, int id_proc) {
 }
 
 void run_parent(FILE * ev, FILE * ps, global* gl, int id_proc) {
+    gl->id_proc = 0;
     close_nenuzh_pipes(ps,gl, gl->id_proc);
     close_ne_rw_pipes(ps,gl, gl->id_proc);
     Message* msg = malloc(sizeof(Message));
@@ -62,6 +83,15 @@ void run_parent(FILE * ev, FILE * ps, global* gl, int id_proc) {
         }
     }
     log_res_all_start(gl, ev, gl->id_proc);
+
+    // полезная работа
+
+
+
+
+
+
+
     for (size_t j = 0; j < gl->count_proc; j++) {
         if (j != gl->id_proc && j != PARENT_ID) {
             while(receive(gl, j, msg) == -1) {}

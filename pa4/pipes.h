@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include "ipc.h"
 
+static int my_flag;
+
 typedef struct
 {
     int s_to_b[2];
@@ -28,6 +30,7 @@ typedef struct
     timestamp_t time_now;
     my_queue* mq;
     int size_mq;
+    int num_from;
 }__attribute__((packed)) global;
 
 global* new_global(size_t count_proc);

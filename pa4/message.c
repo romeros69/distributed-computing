@@ -38,4 +38,34 @@ Message* new_done_msg(global* gl, int id_proc) {
     return msg;
 }
 
+Message* new_cs_request_msg(global* gl) {
+    MessageHeader* header = (MessageHeader*) malloc(sizeof(MessageHeader));
+    header->s_magic = MESSAGE_MAGIC;
+    header->s_local_time = 0;
+    header->s_type = CS_REQUEST;
+    Message* msg = (Message*) malloc(sizeof(Message));
+    msg->s_header = *header;
+    return msg;
+}
+
+Message* new_cs_reply_msg(global* gl) {
+    MessageHeader* header = (MessageHeader*) malloc(sizeof(MessageHeader));
+    header->s_magic = MESSAGE_MAGIC;
+    header->s_local_time = 0;
+    header->s_type = CS_REPLY;
+    Message* msg = (Message*) malloc(sizeof(Message));
+    msg->s_header = *header;
+    return msg;
+}
+
+Message* new_cs_release_msg(global* gl) {
+    MessageHeader* header = (MessageHeader*) malloc(sizeof(MessageHeader));
+    header->s_magic = MESSAGE_MAGIC;
+    header->s_local_time = 0;
+    header->s_type = CS_RELEASE;
+    Message* msg = (Message*) malloc(sizeof(Message));
+    msg->s_header = *header;
+    return msg;
+}
+
 

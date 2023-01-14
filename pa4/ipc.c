@@ -67,6 +67,7 @@ int receive_any(void * self, Message * msg){
             } else {
                 int res = receive(self, j, msg);
                 if (res == 0) {
+                    gl->num_from = j;
                     return 0;
                 }
             }
