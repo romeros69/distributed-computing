@@ -31,6 +31,7 @@ typedef struct
     my_queue* mq;
     int size_mq;
     int num_from;
+    int count_done_msg;
 }__attribute__((packed)) global;
 
 global* new_global(size_t count_proc);
