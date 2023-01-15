@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include "ipc.h"
 
-static int my_flag;
+static int my_flag = 0;
 
 typedef struct
 {
@@ -32,6 +32,7 @@ typedef struct
     int size_mq;
     int num_from;
     int count_done_msg;
+    int mutex_flag;
 }__attribute__((packed)) global;
 
 global* new_global(size_t count_proc);

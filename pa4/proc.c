@@ -35,12 +35,16 @@ void run(FILE * ev, FILE * ps, global* gl, int id_proc) {
 
     char data[200];
     for (int i = 1; i <= gl->id_proc * 5; i++) {
-        request_cs(gl);
+        if (gl->mutex_flag == 1) {
+            request_cs(gl);
+        }
         
         sprintf(data, log_loop_operation_fmt, gl->id_proc, i, gl->id_proc*5);
         print(data);
         
-        release_cs(gl);
+        if (gl->mutex_flag == 1) {
+            release_cs(gl);
+        }
     }
 
     //free(data);

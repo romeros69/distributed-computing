@@ -7,19 +7,19 @@
 #include "common.h"
 
 int main(int argc, char *argv[]) {
-    if (argc != 3) {
-        printf("invalid count arguments\n");
-        return 1;
-    }
+    // if (argc != 3) {
+    //     printf("invalid count arguments\n");
+    //     return 1;
+    // }
 
-    if (strcmp(argv[1], "-p") != 0) {
-        printf("invalid param");
-        return 1;
-    }
 
     // input_c - входной аргумент
     size_t input_c;
-    sscanf(argv[2], "%zu", &input_c);
+    if (argc == 4) {
+        sscanf(argv[3], "%zu", &input_c);
+    } else {
+        sscanf(argv[2], "%zu", &input_c);
+    }
     size_t count_proc = input_c + 1;
 
     FILE *events;
@@ -32,6 +32,13 @@ int main(int argc, char *argv[]) {
     // подготовка пайпов
     create_pipes(gl);
     // print_global_pipes(gl, 0);
+
+    if (strcmp(argv[1], "--mutexl") != 0) {
+        gl->mutex_flag = 0;
+    } else {
+        gl->mutex_flag = 1;
+    }
+
     int p1, p2, p3, p4, p5, p6, p7, p8, p9, p10;
     p1 = fork();
     if (p1 == 0) {
