@@ -1,10 +1,10 @@
-0: process 2 (pid 60292, parent 60290) has STARTED with balance $ 0
-2: process 2 received all STARTED messages
-79: process 2 has DONE with balance $ 0
-79: process 2 received all DONE messages
-0: process 1 (pid 60291, parent 60290) has STARTED with balance $ 0
+0: process 1 (pid 61585, parent 61584) has STARTED with balance $ 0
 2: process 1 received all STARTED messages
-47: process 1 has DONE with balance $ 0
-80: process 1 received all DONE messages
+44: process 1 has DONE with balance $ 0
+78: process 1 received all DONE messages
+0: process 2 (pid 61586, parent 61584) has STARTED with balance $ 0
+2: process 2 received all STARTED messages
+76: process 2 has DONE with balance $ 0
+77: process 2 received all DONE messages
 3: process 0 received all STARTED messages
-80: process 0 received all DONE messages
+78: process 0 received all DONE messages

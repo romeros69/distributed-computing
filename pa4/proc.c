@@ -33,27 +33,23 @@ void run(FILE * ev, FILE * ps, global* gl, int id_proc) {
     log_res_all_start(gl, ev, id_proc);
     // полезная работа
 
-    char * data = (char*) malloc(sizeof(100));
+    char data[200];
     for (int i = 1; i <= gl->id_proc * 5; i++) {
         request_cs(gl);
         
         sprintf(data, log_loop_operation_fmt, gl->id_proc, i, gl->id_proc*5);
         print(data);
-
         
         release_cs(gl);
     }
 
-    free(data);
+    //free(data);
 
 
-
-
-
+    log_done_work(gl, ev, id_proc);
     msg = new_done_msg(gl, gl->id_proc);
     msg->s_header.s_local_time = my_get_lamport_time(gl);
     send_multicast(gl, msg);
-    log_done_work(gl, ev, id_proc);
 
     if (gl->count_done_msg == gl->count_proc -2) {
 
@@ -82,18 +78,7 @@ void run(FILE * ev, FILE * ps, global* gl, int id_proc) {
         }
     }
     
-    close_after_write(ps,gl);
-    // for (size_t j = 0; j < gl->count_proc; j++) {
-    //     if (j != gl->id_proc && j != PARENT_ID) {
-    //         while(receive(gl, j, msg) == -1) {}
-    //         if (msg->s_header.s_type != DONE) {
-    //             j--;
-    //         } else {
-    //             gl->time_now = (gl->time_now > msg->s_header.s_local_time) ? gl->time_now : msg->s_header.s_local_time;
-    //             my_get_lamport_time(gl);
-    //         }
-    //     }
-    // }   
+    close_after_write(ps,gl);  
     close_after_read(ps,gl);
     log_res_all_done(gl, ev, id_proc);
 }
@@ -148,19 +133,6 @@ void run_parent(FILE * ev, FILE * ps, global* gl, int id_proc) {
         // мб добавить ответ от родителя реплай
     }
     
-
-    // for (size_t j = 0; j < gl->count_proc; j++) {
-    //     if (j != gl->id_proc && j != PARENT_ID) {
-    //         while(receive(gl, j, msg) == -1) {}
-    //         if (msg->s_header.s_type != DONE) {
-    //             printf("PRIVET type = %d", msg->s_header.s_type);
-    //             j--;
-    //         } else {
-    //             gl->time_now = (gl->time_now > msg->s_header.s_local_time) ? gl->time_now : msg->s_header.s_local_time;
-    //             my_get_lamport_time(gl);
-    //         }
-    //     }
-    // }
     log_res_all_done(gl, ev, gl->id_proc);
     close_after_write(ps,gl);
     close_after_read(ps,gl);
