@@ -1,42 +1,22 @@
-0: process 2 (pid 63129, parent 63127) has STARTED with balance $ 0
-10: process 2 received all STARTED messages
-648: process 2 has DONE with balance $ 0
-1912: process 2 received all DONE messages
-0: process 1 (pid 63128, parent 63127) has STARTED with balance $ 0
-10: process 1 received all STARTED messages
-318: process 1 has DONE with balance $ 0
-1912: process 1 received all DONE messages
-0: process 5 (pid 63132, parent 63127) has STARTED with balance $ 0
-10: process 5 received all STARTED messages
-1363: process 5 has DONE with balance $ 0
-1912: process 5 received all DONE messages
-0: process 7 (pid 63134, parent 63127) has STARTED with balance $ 0
-10: process 7 received all STARTED messages
-1638: process 7 has DONE with balance $ 0
-1912: process 7 received all DONE messages
-0: process 6 (pid 63133, parent 63127) has STARTED with balance $ 0
-10: process 6 received all STARTED messages
-1513: process 6 has DONE with balance $ 0
-1912: process 6 received all DONE messages
-0: process 4 (pid 63131, parent 63127) has STARTED with balance $ 0
-10: process 4 received all STARTED messages
-1167: process 4 has DONE with balance $ 0
-1912: process 4 received all DONE messages
-0: process 3 (pid 63130, parent 63127) has STARTED with balance $ 0
-10: process 3 received all STARTED messages
-934: process 3 has DONE with balance $ 0
-1912: process 3 received all DONE messages
-0: process 8 (pid 63135, parent 63127) has STARTED with balance $ 0
-10: process 8 received all STARTED messages
-1742: process 8 has DONE with balance $ 0
-1912: process 8 received all DONE messages
-0: process 10 (pid 63137, parent 63127) has STARTED with balance $ 0
-10: process 10 received all STARTED messages
-1910: process 10 has DONE with balance $ 0
-1911: process 10 received all DONE messages
-0: process 9 (pid 63136, parent 63127) has STARTED with balance $ 0
-10: process 9 received all STARTED messages
-1834: process 9 has DONE with balance $ 0
-1912: process 9 received all DONE messages
-11: process 0 received all STARTED messages
-1912: process 0 received all DONE messages
+0: process 3 (pid 67353, parent 67350) has STARTED with balance $ 0
+5: process 3 received all STARTED messages
+5: process 3 has DONE with balance $ 0
+10: process 3 received all DONE messages
+0: process 2 (pid 67352, parent 67350) has STARTED with balance $ 0
+5: process 2 received all STARTED messages
+5: process 2 has DONE with balance $ 0
+10: process 2 received all DONE messages
+0: process 1 (pid 67351, parent 67350) has STARTED with balance $ 0
+5: process 1 received all STARTED messages
+5: process 1 has DONE with balance $ 0
+10: process 1 received all DONE messages
+0: process 4 (pid 67354, parent 67350) has STARTED with balance $ 0
+5: process 4 received all STARTED messages
+5: process 4 has DONE with balance $ 0
+10: process 4 received all DONE messages
+0: process 5 (pid 67355, parent 67350) has STARTED with balance $ 0
+5: process 5 received all STARTED messages
+5: process 5 has DONE with balance $ 0
+10: process 5 received all DONE messages
+6: process 0 received all STARTED messages
+11: process 0 received all DONE messages
