@@ -1,0 +1,22 @@
+0: process 3 (pid 67353, parent 67350) has STARTED with balance $ 0
+5: process 3 received all STARTED messages
+5: process 3 has DONE with balance $ 0
+10: process 3 received all DONE messages
+0: process 2 (pid 67352, parent 67350) has STARTED with balance $ 0
+5: process 2 received all STARTED messages
+5: process 2 has DONE with balance $ 0
+10: process 2 received all DONE messages
+0: process 1 (pid 67351, parent 67350) has STARTED with balance $ 0
+5: process 1 received all STARTED messages
+5: process 1 has DONE with balance $ 0
+10: process 1 received all DONE messages
+0: process 4 (pid 67354, parent 67350) has STARTED with balance $ 0
+5: process 4 received all STARTED messages
+5: process 4 has DONE with balance $ 0
+10: process 4 received all DONE messages
+0: process 5 (pid 67355, parent 67350) has STARTED with balance $ 0
+5: process 5 received all STARTED messages
+5: process 5 has DONE with balance $ 0
+10: process 5 received all DONE messages
+6: process 0 received all STARTED messages
+11: process 0 received all DONE messages

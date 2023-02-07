@@ -24,8 +24,6 @@
 
 # Shared objects (inc. Windows DLLs)
 *.dll
-*.so
-*.so.*
 *.dylib
 
 # Executables
@@ -50,3 +48,5 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+pa1/.vscode/c_cpp_properties.json
+pa1/.vscode/settings.json

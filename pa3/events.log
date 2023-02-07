@@ -1,0 +1,33 @@
+0: process 2 (pid  5478, parent  5476) has STARTED with balance $10
+5: process 2 received all STARTED messages
+10: process 2 received $ 1 from process 1
+15: process 2 transferred $ 2 to process 3
+17: process 2 has DONE with balance $ 9
+41: process 2 received all DONE messages
+0: process 1 (pid  5477, parent  5476) has STARTED with balance $10
+5: process 1 received all STARTED messages
+9: process 1 transferred $ 1 to process 2
+34: process 1 received $ 1 from process 5
+37: process 1 has DONE with balance $10
+41: process 1 received all DONE messages
+0: process 3 (pid  5479, parent  5476) has STARTED with balance $10
+5: process 3 received all STARTED messages
+16: process 3 received $ 2 from process 2
+21: process 3 transferred $ 3 to process 4
+23: process 3 has DONE with balance $ 9
+41: process 3 received all DONE messages
+0: process 5 (pid  5481, parent  5476) has STARTED with balance $10
+5: process 5 received all STARTED messages
+28: process 5 received $ 4 from process 4
+33: process 5 transferred $ 1 to process 1
+35: process 5 has DONE with balance $13
+41: process 5 received all DONE messages
+0: process 4 (pid  5480, parent  5476) has STARTED with balance $10
+5: process 4 received all STARTED messages
+22: process 4 received $ 3 from process 3
+27: process 4 transferred $ 4 to process 5
+29: process 4 has DONE with balance $ 9
+41: process 4 received all DONE messages
+6: process 0 received all STARTED messages
+42: process 0 received all DONE messages
+proverka konca
